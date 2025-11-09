@@ -1,0 +1,13 @@
+{
+  "tasks": {
+    "dev": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-ffi --watch backend/main.ts",
+    "dev:frontend": "deno run --allow-net --allow-read https://deno.land/std/http/file_server.ts frontend --port 3000 --cors",
+    "start": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-ffi backend/main.ts",
+    "test": "deno test --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-ffi",
+    "test:watch": "deno test --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-ffi --watch"
+  },
+  "compilerOptions": {
+    "strict": true
+  }
+}
+
