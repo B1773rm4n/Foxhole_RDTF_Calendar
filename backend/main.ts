@@ -9,7 +9,7 @@ import { getSecurityHeaders, checkRateLimit, getClientIP } from "./utils/securit
 // Initialize database
 initDatabase();
 
-const PORT = parseInt(Deno.env.get("PORT") || "8000");
+const PORT = parseInt(Deno.env.get("PORT") || "9624");
 
 // CORS headers
 const corsHeaders = {
