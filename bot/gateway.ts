@@ -3,6 +3,11 @@
  * Handles real-time events from Discord
  */
 
+import { loadEnvFile } from "./env_loader.ts";
+
+// Load environment variables from .env file
+loadEnvFile();
+
 const DISCORD_BOT_TOKEN = Deno.env.get("DISCORD_BOT_TOKEN") || "";
 const DISCORD_GUILD_ID = Deno.env.get("DISCORD_GUILD_ID") || "";
 
@@ -65,6 +70,11 @@ async function handleGatewayMessage(event: MessageEvent): Promise<void> {
         
         // Identify
         // Intents: GUILDS (1) + GUILD_MESSAGES (512) = 513
+        if (!DISCORD_BOT_TOKEN) {
+          console.error("❌ DISCORD_BOT_TOKEN is not set. Cannot identify with Gateway.");
+          return;
+        }
+        
         sendPayload({
           op: 2,
           d: {
@@ -114,6 +124,15 @@ async function handleGatewayMessage(event: MessageEvent): Promise<void> {
     case 9: // Invalid session
       console.log("❌ Invalid session, reconnecting...");
       setTimeout(() => connect(), 1000);
+      break;
+
+    case 4004: // Authentication failed
+      console.error("❌ Authentication failed (4004)");
+      console.error("   Possible causes:");
+      console.error("   1. Bot token is invalid or incorrect");
+      console.error("   2. Gateway intents not enabled in Discord Developer Portal");
+      console.error("   3. Bot needs to have intents enabled even if non-privileged");
+      console.error("   Fix: Go to Discord Developer Portal → Bot → Enable 'MESSAGE CONTENT INTENT' if needed");
       break;
   }
 }

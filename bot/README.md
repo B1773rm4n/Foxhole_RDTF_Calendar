@@ -35,12 +35,14 @@ The bot is designed to:
 
 1. Go to "Bot" section in Discord Developer Portal
 2. Scroll down to "Privileged Gateway Intents"
-3. Enable:
-   - **MESSAGE CONTENT INTENT** (if you want to read message content - optional for this bot)
-   - **SERVER MEMBERS INTENT** (if you need member info - already needed for role checking)
-4. Save changes
+3. **IMPORTANT:** You don't need to enable any privileged intents for basic message listening
+4. The bot uses `GUILDS` (1) and `GUILD_MESSAGES` (512) intents which are non-privileged
+5. However, if you get authentication errors, verify:
+   - Bot token is correct
+   - Bot is properly invited to the server
+   - No privileged intents are required (they're disabled by default, which is fine)
 
-**Note:** For basic message listening, the bot uses `GUILDS` and `GUILD_MESSAGES` intents which don't require privileged intents.
+**Note:** For basic message listening, the bot uses `GUILDS` and `GUILD_MESSAGES` intents which don't require privileged intents. If you need to read message content, you would need `MESSAGE CONTENT INTENT`, but this bot doesn't need it since it just responds to any message.
 
 ### 3. Configure Environment Variables
 
