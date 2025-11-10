@@ -5,6 +5,15 @@
  * Can be used by the backend authentication system.
  */
 
+import { loadEnvFile } from "./env_loader.ts";
+
+// Load environment variables from .env file (only once)
+let envLoaded = false;
+if (!envLoaded) {
+  loadEnvFile();
+  envLoaded = true;
+}
+
 const DISCORD_BOT_TOKEN = Deno.env.get("DISCORD_BOT_TOKEN") || "";
 const DISCORD_GUILD_ID = Deno.env.get("DISCORD_GUILD_ID") || "";
 

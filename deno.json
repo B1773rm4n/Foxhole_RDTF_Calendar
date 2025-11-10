@@ -5,8 +5,8 @@
     "start": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-ffi backend/main.ts",
     "test": "deno test --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-ffi",
     "test:watch": "deno test --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-ffi --watch",
-    "bot:test": "deno run --allow-net --allow-env bot/main.ts",
-    "bot:start": "deno run --allow-net --allow-env bot/main.ts"
+    "bot:test": "deno run --allow-net --allow-env --allow-read bot/main.ts",
+    "bot:start": "deno run --allow-net --allow-env --allow-read bot/main.ts"
   },
   "compilerOptions": {
     "strict": true

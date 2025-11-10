@@ -8,14 +8,14 @@
  * The backend uses the role_checker.ts module directly via API calls.
  */
 
-import { checkUserHasRole, checkUserInGuild, getUserRoles } from "./role_checker.ts";
+import { loadEnvFile } from "./env_loader.ts";
+
+// Load environment variables from .env file
+loadEnvFile();
 
 const DISCORD_BOT_TOKEN = Deno.env.get("DISCORD_BOT_TOKEN") || "";
 const DISCORD_GUILD_ID = Deno.env.get("DISCORD_GUILD_ID") || "";
 const DISCORD_REQUIRED_ROLE = Deno.env.get("DISCORD_REQUIRED_ROLE") || "Member";
-
-// Bot configuration
-const BOT_INTENTS = 0; // No intents needed for API-only bot
 
 /**
  * Verify bot configuration
