@@ -1,5 +1,6 @@
 import { initDatabase } from "./database.ts";
-import { getDiscordAuthUrl, handleDiscordCallback, getSessionTokenFromRequest, getUserIdFromSession, deleteSession } from "./auth.ts";
+import { getSessionTokenFromRequest, getUserIdFromSession, deleteSession } from "./auth.ts";
+import { getDiscordAuthUrl, handleDiscordCallback } from "./discord/oauth.ts";
 import { handleShiftsRequest, handleShiftRequest } from "./api/shifts.ts";
 import { handleUsersRequest } from "./api/users.ts";
 import { handleCalendarRequest } from "./api/calendar.ts";
