@@ -233,6 +233,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Availability Modal Functions
 let availabilityCalendarDate = new Date();
+const selectedDates = new Set();
 
 // Generate time options for select dropdowns
 function generateTimeOptions() {
@@ -309,13 +310,13 @@ function renderAvailabilityCalendar(containerId, monthYearId) {
 }
 
 // Open availability modal
-function openAvailabilityModal(date = null) {
+function openAvailabilityModal(date = null, startHour = null) {
     const modal = document.getElementById('availability-modal');
     if (!modal) {
         console.error('Availability modal element not found');
         // Retry after DOM is ready
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => openAvailabilityModal(date));
+            document.addEventListener('DOMContentLoaded', () => openAvailabilityModal(date, startHour));
         }
         return;
     }
@@ -341,6 +342,27 @@ function openAvailabilityModal(date = null) {
         timeEnd.innerHTML = generateTimeOptions();
         timeStart.value = '09:00';
         timeEnd.value = '17:00';
+        
+        if (startHour !== null && !Number.isNaN(startHour)) {
+            const padHour = (hour) => String(Math.max(0, Math.min(23, hour))).padStart(2, '0');
+            const startValue = `${padHour(startHour)}:00`;
+            const startOption = Array.from(timeStart.options).find(option => option.value === startValue);
+            if (startOption) {
+                timeStart.value = startValue;
+            }
+            
+            let endValue;
+            if (startHour >= 23) {
+                endValue = '23:30';
+            } else {
+                endValue = `${padHour(startHour + 1)}:00`;
+            }
+            
+            const endOption = Array.from(timeEnd.options).find(option => option.value === endValue);
+            if (endOption) {
+                timeEnd.value = endValue;
+            }
+        }
     }
     
     // Render calendars
@@ -532,6 +554,7 @@ function toggleAdvancedOptions() {
 }
 
 // Make functions globally available immediately (not waiting for DOMContentLoaded)
+globalThis.getShifts = getShifts;
 globalThis.openShiftModal = openShiftModal;
 globalThis.closeShiftModal = closeShiftModal;
 globalThis.openAvailabilityModal = openAvailabilityModal;

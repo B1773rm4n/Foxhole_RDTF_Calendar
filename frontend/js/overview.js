@@ -1,5 +1,5 @@
 /**
- * Overview - Monday to Friday grid view
+ * Overview - Monday to Sunday grid view
  */
 
 if (typeof globalThis.API_BASE === 'undefined') {
@@ -7,16 +7,18 @@ if (typeof globalThis.API_BASE === 'undefined') {
 }
 
 let weeklyShifts = [];
+let currentWeekStart = getWeekStart(new Date());
 
-// Initialize current week start (Monday of current week)
-const currentWeekStart = (() => {
-    const now = new Date();
-    const day = now.getDay();
-    const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
-    const monday = new Date(now.getFullYear(), now.getMonth(), diff);
-    monday.setHours(0, 0, 0, 0);
-    return monday;
-})();
+// Calculate start of ISO week (Monday)
+function getWeekStart(date) {
+    const result = new Date(date);
+    result.setHours(0, 0, 0, 0);
+    const day = result.getDay();
+    const diff = (day + 6) % 7; // Number of days to subtract to reach Monday
+    result.setDate(result.getDate() - diff);
+    result.setHours(0, 0, 0, 0);
+    return result;
+}
 
 // Format date for display
 function formatDateDisplay(date) {
@@ -28,10 +30,10 @@ function formatDateDisplay(date) {
     return `${month} ${day} ${dayName}`;
 }
 
-// Get all days Monday-Friday for current week
+// Get all days for current week (Monday-Sunday)
 function getWeekDays() {
     const days = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 7; i++) {
         const date = new Date(currentWeekStart);
         date.setDate(currentWeekStart.getDate() + i);
         days.push(date);
@@ -44,7 +46,7 @@ async function loadWeeklyShifts() {
     const weekDays = getWeekDays();
     const startDate = new Date(weekDays[0]);
     startDate.setHours(0, 0, 0, 0);
-    const endDate = new Date(weekDays[4]);
+    const endDate = new Date(weekDays[weekDays.length - 1]);
     endDate.setHours(23, 59, 59, 999);
     
     const startDateStr = startDate.toISOString();
@@ -96,9 +98,9 @@ function renderWeeklyGrid() {
     
     if (dateRangeEl && weekDays.length > 0) {
         const start = weekDays[0];
-        const end = weekDays[4];
-        const startStr = `${String(start.getMonth() + 1).padStart(2, '0')}/${start.getDate()}`;
-        const endStr = `${String(end.getMonth() + 1).padStart(2, '0')}/${end.getDate()}`;
+        const end = weekDays[weekDays.length - 1];
+        const startStr = `${String(start.getMonth() + 1).padStart(2, '0')}/${String(start.getDate()).padStart(2, '0')}`;
+        const endStr = `${String(end.getMonth() + 1).padStart(2, '0')}/${String(end.getDate()).padStart(2, '0')}`;
         dateRangeEl.textContent = `${startStr} - ${endStr}`;
     }
     
@@ -115,16 +117,6 @@ function renderWeeklyGrid() {
         grid.appendChild(dayHeader);
     });
     
-    // Add next week button
-    const nextWeekBtn = document.createElement('button');
-    nextWeekBtn.className = 'week-nav-btn';
-    nextWeekBtn.innerHTML = '→';
-    nextWeekBtn.onclick = () => {
-        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-        loadWeeklyShifts();
-    };
-    grid.appendChild(nextWeekBtn);
-    
     // Create time slots (0:00 to 23:00)
     for (let hour = 0; hour < 24; hour++) {
         // Time label
@@ -139,6 +131,12 @@ function renderWeeklyGrid() {
             cell.className = 'time-cell';
             cell.dataset.date = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
             cell.dataset.hour = hour;
+            
+            cell.addEventListener('click', () => {
+                if (typeof openAvailabilityModal === 'function') {
+                    openAvailabilityModal(cell.dataset.date, hour);
+                }
+            });
             
             // Check if this cell has any shifts (check if shift overlaps with this hour)
             const cellShifts = weeklyShifts.filter(shift => {
@@ -196,6 +194,13 @@ function renderWeeklyGrid() {
                 shiftBlock.textContent = shift.user?.username || 'Unknown';
                 shiftBlock.title = `${formatDateTime(shift.start_time, timezone)} - ${formatDateTime(shift.end_time, timezone)}`;
                 shiftBlock.dataset.shiftId = shift.id;
+                
+                shiftBlock.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    if (typeof openShiftModal === 'function') {
+                        openShiftModal(cell.dataset.date, shift);
+                    }
+                });
                 
                 // Only show text if block is tall enough
                 if (heightPercent < 30) {
@@ -290,6 +295,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Make functions globally available
     globalThis.refreshOverview = loadWeeklyShifts;
+    globalThis.refreshWeeklyOverview = loadWeeklyShifts;
     globalThis.copyLinkToClipboard = copyLinkToClipboard;
+    
+    const prevWeekBtn = document.getElementById('prev-week-btn');
+    const nextWeekBtn = document.getElementById('next-week-btn');
+    
+    if (prevWeekBtn) {
+        prevWeekBtn.addEventListener('click', () => {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            currentWeekStart = getWeekStart(currentWeekStart);
+            loadWeeklyShifts();
+        });
+    }
+    
+    if (nextWeekBtn) {
+        nextWeekBtn.addEventListener('click', () => {
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            currentWeekStart = getWeekStart(currentWeekStart);
+            loadWeeklyShifts();
+        });
+    }
 });
 
