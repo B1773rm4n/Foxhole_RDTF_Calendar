@@ -2,6 +2,9 @@
  * Shift management logic
  */
 
+// Ensure API_BASE is available (fallback to production URL if not set)
+const API_BASE = window.API_BASE || 'https://rotdust-calendar.asuka-shikinami.club';
+
 let currentUserId = null;
 
 // Load current user

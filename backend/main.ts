@@ -94,7 +94,7 @@ async function handleRequest(request: Request): Promise<Response> {
   if (path === "/" || path === "/index.html") {
     try {
       let html = new TextDecoder().decode(await Deno.readFile("frontend/index.html"));
-      const apiBase = Deno.env.get("API_BASE") || "";
+      const apiBase = Deno.env.get("API_BASE") || "https://rotdust-calendar.asuka-shikinami.club";
       // Inject API_BASE before the first script tag
       html = html.replace(
         "<head>",
@@ -111,7 +111,7 @@ async function handleRequest(request: Request): Promise<Response> {
   if (path === "/login.html") {
     try {
       let html = new TextDecoder().decode(await Deno.readFile("frontend/login.html"));
-      const apiBase = Deno.env.get("API_BASE") || "";
+      const apiBase = Deno.env.get("API_BASE") || "https://rotdust-calendar.asuka-shikinami.club";
       // Inject API_BASE before the first script tag
       html = html.replace(
         "<head>",
