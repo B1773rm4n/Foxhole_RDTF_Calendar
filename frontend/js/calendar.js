@@ -8,7 +8,7 @@ if (typeof globalThis.API_BASE === 'undefined') {
 
 let shifts = [];
 let currentUser = null;
-
+const currentDate = new Date(); // Initialize to current date
 
 // Load current user
 async function loadCurrentUser() {

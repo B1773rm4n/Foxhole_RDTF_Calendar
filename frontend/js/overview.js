@@ -8,6 +8,16 @@ if (typeof globalThis.API_BASE === 'undefined') {
 
 let weeklyShifts = [];
 
+// Initialize current week start (Monday of current week)
+const currentWeekStart = (() => {
+    const now = new Date();
+    const day = now.getDay();
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+    const monday = new Date(now.getFullYear(), now.getMonth(), diff);
+    monday.setHours(0, 0, 0, 0);
+    return monday;
+})();
+
 // Format date for display
 function formatDateDisplay(date) {
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
