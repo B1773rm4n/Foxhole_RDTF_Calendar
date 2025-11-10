@@ -1,4 +1,4 @@
-import { assertEquals, assertExists, assert } from "https://deno.land/std@0.208.0/assert/mod.ts";
+import { assertEquals, assertExists, assert } from "@std/assert";
 import { 
   initDatabase, 
   closeDatabase, 

@@ -54,10 +54,24 @@ async function handleRequest(request: Request): Promise<Response> {
       rateLimitType = "shifts";
     }
     
-    if (!checkRateLimit(clientIP, rateLimitType)) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+    const rateLimitResult = checkRateLimit(clientIP, rateLimitType);
+    if (!rateLimitResult.allowed) {
+      const retryAfter = rateLimitResult.resetAt 
+        ? Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000)
+        : 900; // Default to 15 minutes if resetAt is missing
+      
+      return new Response(JSON.stringify({ 
+        error: "Rate limit exceeded",
+        retryAfter: retryAfter,
+        message: `Too many requests. Please try again in ${Math.ceil(retryAfter / 60)} minute(s).`
+      }), {
         status: 429,
-        headers: { ...headers, "Content-Type": "application/json" },
+        headers: { 
+          ...headers, 
+          "Content-Type": "application/json",
+          "Retry-After": retryAfter.toString(),
+          "X-RateLimit-Reset": rateLimitResult.resetAt?.toString() || ""
+        },
       });
     }
   }

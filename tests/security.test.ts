@@ -1,4 +1,4 @@
-import { assertEquals, assert } from "https://deno.land/std@0.208.0/assert/mod.ts";
+import { assertEquals, assert } from "@std/assert";
 import {
   checkRateLimit,
   getClientIP,
@@ -30,18 +30,24 @@ Deno.test("Rate limiting", () => {
   
   // Should allow requests within limit
   for (let i = 0; i < 5; i++) {
-    assertEquals(checkRateLimit(ip, "auth"), true);
+    const result = checkRateLimit(ip, "auth");
+    assertEquals(result.allowed, true);
+    assert(result.resetAt !== undefined);
   }
   
   // Should block after limit
-  assertEquals(checkRateLimit(ip, "auth"), false);
+  const blockedResult = checkRateLimit(ip, "auth");
+  assertEquals(blockedResult.allowed, false);
+  assert(blockedResult.resetAt !== undefined);
   
   // API limit is higher
   const ip2 = "192.168.1.200";
   for (let i = 0; i < 100; i++) {
-    assertEquals(checkRateLimit(ip2, "api"), true);
+    const result = checkRateLimit(ip2, "api");
+    assertEquals(result.allowed, true);
   }
-  assertEquals(checkRateLimit(ip2, "api"), false);
+  const blockedResult2 = checkRateLimit(ip2, "api");
+  assertEquals(blockedResult2.allowed, false);
 });
 
 Deno.test("Security headers", () => {

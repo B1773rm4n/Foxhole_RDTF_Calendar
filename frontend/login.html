@@ -17,16 +17,51 @@
     <script src="/js/auth.js"></script>
     <script>
         document.getElementById('discord-login-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('discord-login-btn');
+            const originalText = btn.textContent;
+            
             try {
+                // Disable button to prevent multiple clicks
+                btn.disabled = true;
+                btn.textContent = 'Loading...';
+                
                 const response = await fetch(`${API_BASE}/api/auth/discord`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                
+                if (response.status === 429) {
+                    // Handle rate limit error
+                    const data = await response.json();
+                    const retryAfter = response.headers.get('Retry-After') || data.retryAfter || 900;
+                    const minutes = Math.ceil(retryAfter / 60);
+                    const message = data.message || `Too many login attempts. Please wait ${minutes} minute(s) before trying again.`;
+                    alert(message);
+                    btn.disabled = true;
+                    btn.textContent = `Try again in ${minutes} min(s)`;
+                    
+                    // Re-enable button after rate limit expires
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        btn.textContent = originalText;
+                    }, retryAfter * 1000);
+                    return;
                 }
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
                 window.location.href = data.url;
             } catch (error) {
                 console.error('Login error:', error);
-                alert('Failed to initiate login. Please make sure the backend server is running.');
+                btn.disabled = false;
+                btn.textContent = originalText;
+                
+                if (error instanceof Error && error.message.includes('Rate limit')) {
+                    alert(error.message);
+                } else {
+                    alert('Failed to initiate login. Please make sure the backend server is running.');
+                }
             }
         });
     </script>

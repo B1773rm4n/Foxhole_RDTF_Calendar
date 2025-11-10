@@ -20,9 +20,17 @@ const RATE_LIMITS = {
 };
 
 /**
+ * Rate limit check result
+ */
+export interface RateLimitResult {
+  allowed: boolean;
+  resetAt?: number; // Timestamp when the rate limit resets
+}
+
+/**
  * Check rate limit for an IP address
  */
-export function checkRateLimit(ip: string, type: keyof typeof RATE_LIMITS): boolean {
+export function checkRateLimit(ip: string, type: keyof typeof RATE_LIMITS): RateLimitResult {
   const limit = RATE_LIMITS[type];
   const now = Date.now();
   
@@ -39,10 +47,10 @@ export function checkRateLimit(ip: string, type: keyof typeof RATE_LIMITS): bool
   
   // Check if limit exceeded
   if (entry.count > limit.requests) {
-    return false;
+    return { allowed: false, resetAt: entry.resetAt };
   }
   
-  return true;
+  return { allowed: true, resetAt: entry.resetAt };
 }
 
 /**
