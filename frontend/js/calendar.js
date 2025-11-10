@@ -134,9 +134,11 @@ function renderCalendar() {
             dayCell.appendChild(shiftEl);
         });
         
-        // Make day clickable to add shift
+        // Make day clickable to add availability
         dayCell.addEventListener('click', () => {
-            openShiftModal(dateStr);
+            if (window.openAvailabilityModal) {
+                window.openAvailabilityModal(dateStr);
+            }
         });
         
         grid.appendChild(dayCell);
@@ -184,13 +186,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const addBtn = document.getElementById('add-availability-btn');
     if (addBtn) {
         addBtn.addEventListener('click', () => {
-            // Open modal for today's date
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            const dateStr = `${year}-${month}-${day}`;
-            openShiftModal(dateStr);
+            // Open availability modal
+            if (window.openAvailabilityModal) {
+                window.openAvailabilityModal();
+            }
         });
     }
     

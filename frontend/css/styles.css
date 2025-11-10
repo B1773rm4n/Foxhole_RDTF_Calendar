@@ -466,3 +466,684 @@ body {
     }
 }
 
+/* Availability Modal Styles */
+.availability-modal {
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.availability-modal .modal-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.availability-name-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 1.5rem;
+    font-family: inherit;
+}
+
+.availability-name-input:focus {
+    outline: none;
+    border-color: #28a745;
+}
+
+/* Modal Tabs */
+.modal-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 12px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #666;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+}
+
+.tab-button:hover {
+    color: #333;
+}
+
+.tab-button.active {
+    color: #28a745;
+    border-bottom-color: #28a745;
+    font-weight: 500;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Form Sections */
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+/* Time Range Selector */
+.time-range-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.time-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    flex: 1;
+}
+
+.time-separator {
+    color: #666;
+    font-weight: 500;
+}
+
+/* Checkbox Group */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0.5rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.checkbox-group label {
+    cursor: pointer;
+    color: #333;
+    font-size: 14px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkbox-icon {
+    font-size: 18px;
+    color: #999;
+}
+
+/* Date Type Select */
+.date-type-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+/* Calendar Picker */
+.calendar-picker {
+    margin-top: 1rem;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.calendar-header h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.calendar-nav-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #666;
+    padding: 5px 10px;
+    border-radius: 3px;
+    transition: all 0.2s;
+}
+
+.calendar-nav-btn:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    margin-bottom: 0.5rem;
+}
+
+.weekday {
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #666;
+    padding: 5px;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.calendar-day-cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    background: white;
+    border: 1px solid transparent;
+}
+
+.calendar-day-cell:hover {
+    background-color: #e8f4f8;
+    border-color: #28a745;
+}
+
+.calendar-day-cell.selected {
+    background-color: #28a745;
+    color: white;
+    font-weight: 600;
+}
+
+.calendar-day-cell.empty {
+    cursor: default;
+    background: transparent;
+    border: none;
+}
+
+.calendar-day-cell.empty:hover {
+    background: transparent;
+}
+
+/* Sign In Prompt */
+.sign-in-prompt {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: #666;
+    font-style: italic;
+}
+
+/* Advanced Options */
+.advanced-options-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.advanced-options-header .section-title {
+    margin-bottom: 0;
+}
+
+.chevron-btn {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #666;
+    padding: 5px;
+    transition: transform 0.2s;
+}
+
+.chevron-btn:hover {
+    color: #333;
+}
+
+.advanced-options-content {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.advanced-options-content label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.advanced-options-content textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+}
+
+/* Create Button */
+.create-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.create-button:hover {
+    background-color: #218838;
+}
+
+/* Responsive for Availability Modal */
+@media (max-width: 768px) {
+    .availability-modal {
+        width: 95%;
+        max-height: 95vh;
+        padding: 1.5rem;
+    }
+    
+    .modal-tabs {
+        flex-direction: column;
+    }
+    
+    .tab-button {
+        text-align: left;
+        border-bottom: none;
+        border-left: 3px solid transparent;
+        margin-bottom: 0;
+    }
+    
+    .tab-button.active {
+        border-left-color: #28a745;
+        border-bottom-color: transparent;
+    }
+    
+    .time-range-selector {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .time-separator {
+        text-align: center;
+    }
+}
+
+/* Overview Styles */
+.overview-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.overview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.overview-title-section {
+    flex: 1;
+}
+
+.overview-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+    margin: 0 0 0.5rem 0;
+}
+
+.overview-date-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.overview-date-range {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.edit-link {
+    color: #28a745;
+    text-decoration: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.edit-link:hover {
+    text-decoration: underline;
+}
+
+.overview-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.copy-link-button {
+    background: white;
+    border: 2px solid #28a745;
+    color: #28a745;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.copy-link-button:hover {
+    background: #f0f8f0;
+}
+
+.copy-icon {
+    font-size: 16px;
+}
+
+.overview-content {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.weekly-grid-container {
+    flex: 1;
+    overflow-x: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    position: relative;
+}
+
+.weekly-grid {
+    display: grid;
+    grid-template-columns: 80px repeat(5, 1fr) 40px;
+    min-width: 800px;
+    background: white;
+}
+
+.time-header {
+    grid-column: 1;
+    background: #f9f9f9;
+    border-right: 1px solid #e0e0e0;
+    padding: 10px;
+    font-weight: 600;
+    color: #666;
+}
+
+.day-header {
+    background: white;
+    border-right: 1px solid #e0e0e0;
+    padding: 15px 10px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #333;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.week-nav-btn {
+    grid-column: 7;
+    background: #f5f5f5;
+    border: none;
+    border-left: 1px solid #e0e0e0;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #666;
+    border-radius: 0 5px 5px 0;
+    transition: background 0.2s;
+    padding: 10px;
+}
+
+.week-nav-btn:hover {
+    background: #e0e0e0;
+}
+
+.time-label {
+    background: #f9f9f9;
+    border-right: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 5px 10px;
+    font-size: 0.85rem;
+    color: #666;
+    text-align: right;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.time-cell {
+    border-right: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    min-height: 60px;
+    position: relative;
+    cursor: pointer;
+    background: white;
+    transition: background 0.2s;
+}
+
+.time-cell:hover {
+    background: #f5f9ff;
+}
+
+.time-cell:nth-child(7n+1) {
+    background: #f9f9f9;
+}
+
+.shift-block {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    top: 0;
+    background: #667eea;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.shift-block:hover {
+    opacity: 0.9;
+    z-index: 20;
+}
+
+/* Shiftmanager Sidebar */
+.shiftmanager-sidebar {
+    width: 280px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 1.5rem;
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+}
+
+.sidebar-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.shiftmanager-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.empty-message {
+    color: #999;
+    font-style: italic;
+    text-align: center;
+    padding: 2rem 0;
+    margin: 0;
+}
+
+.shiftmanager-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background 0.2s;
+}
+
+.shiftmanager-item:hover {
+    background: #f5f5f5;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #667eea;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1rem;
+    flex-shrink: 0;
+    background-size: cover;
+    background-position: center;
+}
+
+.user-info-item {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-name {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-shift-count {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* Responsive for Overview */
+@media (max-width: 1200px) {
+    .overview-content {
+        flex-direction: column;
+    }
+    
+    .shiftmanager-sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+        max-height: none;
+    }
+    
+    .shiftmanager-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .overview-container {
+        padding: 1rem;
+    }
+    
+    .overview-header {
+        flex-direction: column;
+    }
+    
+    .overview-title {
+        font-size: 1.5rem;
+    }
+    
+    .overview-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .copy-link-button,
+    .add-button {
+        width: 100%;
+    }
+    
+    .weekly-grid {
+        min-width: 600px;
+    }
+    
+    .day-header {
+        font-size: 0.8rem;
+        padding: 10px 5px;
+    }
+    
+    .time-label {
+        font-size: 0.75rem;
+        padding: 5px;
+        min-height: 50px;
+    }
+    
+    .time-cell {
+        min-height: 50px;
+    }
+}
+

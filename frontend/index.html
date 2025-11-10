@@ -19,7 +19,40 @@
             </div>
         </header>
         
-        <main class="calendar-container">
+        <!-- Overview View -->
+        <div id="overview" class="overview-container">
+            <div class="overview-header">
+                <div class="overview-title-section">
+                    <h1 id="overview-title" class="overview-title">Current Week</h1>
+                    <div class="overview-date-section">
+                        <span id="overview-date-range" class="overview-date-range"></span>
+                        <a href="#" id="edit-availability-link" class="edit-link">Edit availability</a>
+                    </div>
+                </div>
+                <div class="overview-actions">
+                    <button id="copy-link-btn" class="copy-link-button">
+                        <span class="copy-icon">📋</span> Copy link
+                    </button>
+                    <button id="add-availability-overview-btn" class="add-button">+ Add availability</button>
+                </div>
+            </div>
+            
+            <div class="overview-content">
+                <div class="weekly-grid-container">
+                    <div id="weekly-grid" class="weekly-grid"></div>
+                </div>
+                
+                <div class="shiftmanager-sidebar">
+                    <h2 class="sidebar-title">Shiftmanager</h2>
+                    <div id="shiftmanager-list" class="shiftmanager-list">
+                        <p class="empty-message">No responses yet!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Monthly Calendar View (hidden by default) -->
+        <main id="monthly-calendar" class="calendar-container" style="display: none;">
             <div class="calendar-nav">
                 <button id="prev-month-btn" class="nav-button">← Previous</button>
                 <h2 id="current-month-year"></h2>
@@ -34,11 +67,141 @@
             <div id="calendar-grid" class="calendar-grid"></div>
         </main>
         
-        <!-- Shift Modal -->
-        <div id="shift-modal" class="modal">
+        <!-- Availability Modal -->
+        <div id="availability-modal" class="modal">
+            <div class="modal-content availability-modal">
+                <span class="close">&times;</span>
+                <h2 class="modal-title">New availability</h2>
+                
+                <form id="availability-form">
+                    <input type="hidden" id="availability-id">
+                    <input type="hidden" id="availability-date">
+                    
+                    <!-- Availability Name Input -->
+                    <div class="form-group">
+                        <input type="text" id="availability-name" class="availability-name-input" placeholder="Name your availability..." required>
+                    </div>
+                    
+                    <!-- Tabs -->
+                    <div class="modal-tabs">
+                        <button type="button" class="tab-button active" data-tab="dates-times">Dates and times</button>
+                        <button type="button" class="tab-button" data-tab="dates-only">Dates only</button>
+                    </div>
+                    
+                    <!-- Dates and Times Tab Content -->
+                    <div id="dates-times-content" class="tab-content active">
+                        <!-- What times might work? -->
+                        <div class="form-section">
+                            <h3 class="section-title">What times might work?</h3>
+                            <div class="time-range-selector">
+                                <select id="time-start" class="time-select"></select>
+                                <span class="time-separator">to</span>
+                                <select id="time-end" class="time-select"></select>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="specific-times-per-day">
+                                <label for="specific-times-per-day">Set specific times per day</label>
+                            </div>
+                        </div>
+                        
+                        <!-- What dates might work? -->
+                        <div class="form-section">
+                            <h3 class="section-title">What dates might work?</h3>
+                            <select id="date-type" class="date-type-select">
+                                <option value="specific">Specific dates</option>
+                                <option value="range">Date range</option>
+                            </select>
+                            
+                            <!-- Calendar -->
+                            <div class="calendar-picker">
+                                <div class="calendar-header">
+                                    <button type="button" class="calendar-nav-btn" id="calendar-prev">←</button>
+                                    <h4 id="calendar-month-year"></h4>
+                                    <button type="button" class="calendar-nav-btn" id="calendar-next">→</button>
+                                </div>
+                                <div class="calendar-weekdays">
+                                    <div class="weekday">S</div>
+                                    <div class="weekday">M</div>
+                                    <div class="weekday">T</div>
+                                    <div class="weekday">W</div>
+                                    <div class="weekday">T</div>
+                                    <div class="weekday">F</div>
+                                    <div class="weekday">S</div>
+                                </div>
+                                <div id="calendar-days" class="calendar-days"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Dates Only Tab Content -->
+                    <div id="dates-only-content" class="tab-content">
+                        <div class="form-section">
+                            <h3 class="section-title">What dates might work?</h3>
+                            <select id="date-type-only" class="date-type-select">
+                                <option value="specific">Specific dates</option>
+                                <option value="range">Date range</option>
+                            </select>
+                            
+                            <!-- Calendar -->
+                            <div class="calendar-picker">
+                                <div class="calendar-header">
+                                    <button type="button" class="calendar-nav-btn" id="calendar-prev-only">←</button>
+                                    <h4 id="calendar-month-year-only"></h4>
+                                    <button type="button" class="calendar-nav-btn" id="calendar-next-only">→</button>
+                                </div>
+                                <div class="calendar-weekdays">
+                                    <div class="weekday">S</div>
+                                    <div class="weekday">M</div>
+                                    <div class="weekday">T</div>
+                                    <div class="weekday">W</div>
+                                    <div class="weekday">T</div>
+                                    <div class="weekday">F</div>
+                                    <div class="weekday">S</div>
+                                </div>
+                                <div id="calendar-days-only" class="calendar-days"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Email Notification -->
+                    <div class="form-section">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="email-notification" disabled>
+                            <label for="email-notification">
+                                <span class="checkbox-icon">☐</span>
+                                Email me each time someone joins my availability
+                            </label>
+                        </div>
+                        <p class="sign-in-prompt">Sign in to use this feature</p>
+                    </div>
+                    
+                    <!-- Advanced Options -->
+                    <div class="form-section">
+                        <div class="advanced-options-header">
+                            <h3 class="section-title">Advanced options</h3>
+                            <button type="button" class="chevron-btn" id="advanced-toggle">▼</button>
+                        </div>
+                        <div id="advanced-options" class="advanced-options-content" style="display: none;">
+                            <label for="availability-description">Description (optional):</label>
+                            <textarea id="availability-description" rows="3" placeholder="Add any additional details..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="submit" class="submit-button create-button">Create availability</button>
+                        <button type="button" id="delete-availability-btn" class="delete-button" style="display: none;">Delete</button>
+                        <button type="button" class="cancel-button" onclick="closeAvailabilityModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Legacy Shift Modal (for editing existing shifts) -->
+        <div id="shift-modal" class="modal" style="display: none;">
             <div class="modal-content">
                 <span class="close">&times;</span>
-                <h2 id="modal-title">Create Shift</h2>
+                <h2 id="modal-title">Edit Availability</h2>
                 <form id="shift-form">
                     <input type="hidden" id="shift-id">
                     <input type="hidden" id="shift-date">
@@ -66,6 +229,7 @@
     <script src="/js/timezone.js"></script>
     <script src="/js/shifts.js"></script>
     <script src="/js/calendar.js"></script>
+    <script src="/js/overview.js"></script>
 </body>
 </html>
 

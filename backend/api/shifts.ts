@@ -1,4 +1,4 @@
-import { getShifts, getShiftById, createShift, updateShift, deleteShift } from "../database.ts";
+import { getShifts, getShiftById, createShift, updateShift, deleteShift, getUserById } from "../database.ts";
 import { convertTimezoneToUTC, formatDateTimeForTimezone, isValidTimezone } from "../utils/timezone.ts";
 import { 
   isValidDateTimeLocal, 
@@ -41,12 +41,20 @@ export async function handleShiftsRequest(request: Request, userId: number | nul
 
       const shifts = getShifts(startDate || undefined, endDate || undefined);
       
-      // Format shifts with timezone conversion
-      const formattedShifts = shifts.map(shift => ({
-        ...shift,
-        start_time: formatDateTimeForTimezone(shift.start_time, timezone),
-        end_time: formatDateTimeForTimezone(shift.end_time, timezone),
-      }));
+      // Format shifts with timezone conversion and user info
+      const formattedShifts = shifts.map(shift => {
+        const user = getUserById(shift.user_id);
+        return {
+          ...shift,
+          user: user ? {
+            id: user.id,
+            username: user.username,
+            avatar_url: user.avatar_url,
+          } : null,
+          start_time: formatDateTimeForTimezone(shift.start_time, timezone),
+          end_time: formatDateTimeForTimezone(shift.end_time, timezone),
+        };
+      });
 
       return new Response(JSON.stringify(formattedShifts), {
         headers: { "Content-Type": "application/json" },
@@ -134,8 +142,14 @@ export async function handleShiftRequest(request: Request, userId: number | null
         throw new NotFoundError("Shift");
       }
 
+      const user = getUserById(shift.user_id);
       const formattedShift = {
         ...shift,
+        user: user ? {
+          id: user.id,
+          username: user.username,
+          avatar_url: user.avatar_url,
+        } : null,
         start_time: formatDateTimeForTimezone(shift.start_time, timezone),
         end_time: formatDateTimeForTimezone(shift.end_time, timezone),
       };
