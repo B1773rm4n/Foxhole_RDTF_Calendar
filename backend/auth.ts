@@ -2,7 +2,15 @@
  * Discord OAuth2 authentication handler
  */
 
-import { getUserByDiscordId, createUser, type User } from "./database.ts";
+import { 
+  getUserByDiscordId, 
+  createUser, 
+  type User, 
+  createSession as dbCreateSession, 
+  getSessionByToken, 
+  deleteSession as dbDeleteSession, 
+  deleteExpiredSessions 
+} from "./database.ts";
 import { checkUserHasRole as botCheckUserHasRole, checkUserInGuild as botCheckUserInGuild } from "../bot/role_checker.ts";
 
 // These should be set via environment variables
@@ -10,11 +18,10 @@ const DISCORD_CLIENT_ID = Deno.env.get("DISCORD_CLIENT_ID") || "";
 const DISCORD_CLIENT_SECRET = Deno.env.get("DISCORD_CLIENT_SECRET") || "";
 const DISCORD_REDIRECT_URI = Deno.env.get("DISCORD_REDIRECT_URI") || "http://localhost:8000/api/auth/callback";
 const DISCORD_GUILD_ID = Deno.env.get("DISCORD_GUILD_ID") || "";
-const DISCORD_REQUIRED_ROLE = Deno.env.get("DISCORD_REQUIRED_ROLE") || "Member";
 const DISCORD_BOT_TOKEN = Deno.env.get("DISCORD_BOT_TOKEN") || ""; // Optional: for role checking
 
-// In-memory session store (in production, use Redis or similar)
-const sessions = new Map<string, { userId: number; expiresAt: number }>();
+// Allowed roles for login (users need at least one of these)
+const ALLOWED_ROLES = ["Member", "Admin"];
 
 /**
  * Generate a random session token
@@ -24,16 +31,18 @@ function generateSessionToken(): string {
 }
 
 /**
- * Create a session for a user
+ * Create a session for a user (stored in database)
  */
 export function createSession(userId: number): string {
   const token = generateSessionToken();
-  const expiresAt = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 days
-  
-  sessions.set(token, { userId, expiresAt });
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 3); // 3 days from now
   
   // Clean up expired sessions periodically
-  cleanupExpiredSessions();
+  deleteExpiredSessions();
+  
+  // Create session in database
+  dbCreateSession(userId, token, expiresAt);
   
   return token;
 }
@@ -42,36 +51,19 @@ export function createSession(userId: number): string {
  * Get user ID from session token
  */
 export function getUserIdFromSession(token: string): number | null {
-  const session = sessions.get(token);
+  const session = getSessionByToken(token);
   if (!session) {
     return null;
   }
   
-  if (session.expiresAt < Date.now()) {
-    sessions.delete(token);
-    return null;
-  }
-  
-  return session.userId;
+  return session.user_id;
 }
 
 /**
  * Delete a session
  */
 export function deleteSession(token: string): void {
-  sessions.delete(token);
-}
-
-/**
- * Clean up expired sessions
- */
-function cleanupExpiredSessions(): void {
-  const now = Date.now();
-  for (const [token, session] of sessions.entries()) {
-    if (session.expiresAt < now) {
-      sessions.delete(token);
-    }
-  }
+  dbDeleteSession(token);
 }
 
 /**
@@ -171,17 +163,22 @@ async function checkUserInGuild(accessToken: string, userId?: string): Promise<b
 }
 
 /**
- * Check if user has the required role in the guild
+ * Check if user has one of the allowed roles in the guild
  * Uses bot token if available, otherwise uses OAuth token with guilds.members.read scope
  */
-async function checkUserHasRole(userId: string, accessToken?: string): Promise<boolean> {
-  if (!DISCORD_GUILD_ID || !DISCORD_REQUIRED_ROLE) {
+async function checkUserHasAllowedRole(userId: string, accessToken?: string): Promise<boolean> {
+  if (!DISCORD_GUILD_ID || ALLOWED_ROLES.length === 0) {
     return true; // No role restriction if not configured
   }
 
-  // Method 1: Use bot token (recommended) - use bot module
+  // Method 1: Use bot token (recommended) - check each allowed role
   if (DISCORD_BOT_TOKEN) {
-    return await botCheckUserHasRole(userId, DISCORD_REQUIRED_ROLE);
+    for (const roleName of ALLOWED_ROLES) {
+      if (await botCheckUserHasRole(userId, roleName)) {
+        return true;
+      }
+    }
+    return false;
   }
   
   // Method 2: Use OAuth token (requires guilds.members.read scope)
@@ -199,7 +196,7 @@ async function checkUserHasRole(userId: string, accessToken?: string): Promise<b
       
       const member = await response.json() as { roles: string[] };
       
-      // Get all roles in the guild to find role ID by name
+      // Get all roles in the guild to find role IDs by name
       const rolesResponse = await fetch(`https://discord.com/api/guilds/${DISCORD_GUILD_ID}/roles`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -211,14 +208,16 @@ async function checkUserHasRole(userId: string, accessToken?: string): Promise<b
       }
       
       const roles = await rolesResponse.json() as Array<{ id: string; name: string }>;
-      const requiredRole = roles.find(role => role.name === DISCORD_REQUIRED_ROLE);
       
-      if (!requiredRole) {
-        console.warn(`Role "${DISCORD_REQUIRED_ROLE}" not found in guild`);
-        return false;
+      // Check if user has any of the allowed roles
+      for (const allowedRoleName of ALLOWED_ROLES) {
+        const allowedRole = roles.find(role => role.name === allowedRoleName);
+        if (allowedRole && member.roles.includes(allowedRole.id)) {
+          return true;
+        }
       }
       
-      return member.roles.includes(requiredRole.id);
+      return false;
     } catch (error) {
       console.error("Error checking role with OAuth token:", error);
       return false;
@@ -246,11 +245,11 @@ export async function handleDiscordCallback(code: string): Promise<{ user: User;
     }
   }
   
-  // Check if user has required role
-  if (DISCORD_GUILD_ID && DISCORD_REQUIRED_ROLE) {
-    const hasRole = await checkUserHasRole(discordUser.id, accessToken);
-    if (!hasRole) {
-      throw new Error(`You must have the "${DISCORD_REQUIRED_ROLE}" role in the Discord server to access this application.`);
+  // Check if user has one of the allowed roles
+  if (DISCORD_GUILD_ID && ALLOWED_ROLES.length > 0) {
+    const hasAllowedRole = await checkUserHasAllowedRole(discordUser.id, accessToken);
+    if (!hasAllowedRole) {
+      throw new Error(`You must have one of the following roles in the Discord server to access this application: ${ALLOWED_ROLES.join(", ")}`);
     }
   }
   

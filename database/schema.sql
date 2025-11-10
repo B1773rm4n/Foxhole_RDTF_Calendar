@@ -20,9 +20,22 @@ CREATE TABLE IF NOT EXISTS shifts (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Sessions table for authentication
+CREATE TABLE IF NOT EXISTS sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    token TEXT UNIQUE NOT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_shifts_user_id ON shifts(user_id);
 CREATE INDEX IF NOT EXISTS idx_shifts_start_time ON shifts(start_time);
 CREATE INDEX IF NOT EXISTS idx_shifts_end_time ON shifts(end_time);
 CREATE INDEX IF NOT EXISTS idx_users_discord_id ON users(discord_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
+CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
 

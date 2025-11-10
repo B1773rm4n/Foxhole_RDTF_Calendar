@@ -21,7 +21,7 @@ interface GatewayPayload {
 let ws: WebSocket | null = null;
 let heartbeatInterval: number | null = null;
 let sequenceNumber: number | null = null;
-let sessionId: string | null = null;
+let _sessionId: string | null = null;
 let resumeGatewayUrl: string | null = null;
 
 /**
@@ -98,7 +98,7 @@ async function handleGatewayMessage(event: MessageEvent): Promise<void> {
       {
         if (payload.t === "READY") {
           const data = payload.d as { session_id: string; resume_gateway_url: string };
-          sessionId = data.session_id;
+          _sessionId = data.session_id;
           resumeGatewayUrl = data.resume_gateway_url;
           console.log("✅ Bot is ready!");
         } else if (payload.t === "MESSAGE_CREATE") {
@@ -124,15 +124,6 @@ async function handleGatewayMessage(event: MessageEvent): Promise<void> {
     case 9: // Invalid session
       console.log("❌ Invalid session, reconnecting...");
       setTimeout(() => connect(), 1000);
-      break;
-
-    case 4004: // Authentication failed
-      console.error("❌ Authentication failed (4004)");
-      console.error("   Possible causes:");
-      console.error("   1. Bot token is invalid or incorrect");
-      console.error("   2. Gateway intents not enabled in Discord Developer Portal");
-      console.error("   3. Bot needs to have intents enabled even if non-privileged");
-      console.error("   Fix: Go to Discord Developer Portal → Bot → Enable 'MESSAGE CONTENT INTENT' if needed");
       break;
   }
 }
@@ -229,6 +220,19 @@ export async function connect(): Promise<void> {
       if (heartbeatInterval) {
         clearInterval(heartbeatInterval);
         heartbeatInterval = null;
+      }
+
+      // Handle authentication failure (4004)
+      if (event.code === 4004) {
+        console.error("❌ Authentication failed (4004)");
+        console.error("   Possible causes:");
+        console.error("   1. Bot token is invalid or incorrect");
+        console.error("   2. Gateway intents not enabled in Discord Developer Portal");
+        console.error("   Fix:");
+        console.error("   - Verify bot token in .env file");
+        console.error("   - Go to Discord Developer Portal → Bot → Enable required intents");
+        console.error("   - The bot needs GUILDS and GUILD_MESSAGES intents (non-privileged)");
+        return; // Don't reconnect on auth failure
       }
 
       // Attempt to reconnect if not a clean close

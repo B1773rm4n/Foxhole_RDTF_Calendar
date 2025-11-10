@@ -126,13 +126,13 @@ async function handleRequest(request: Request): Promise<Response> {
       try {
         const { sessionToken } = await handleDiscordCallback(code);
         
-        // Redirect to main page with session cookie
+        // Redirect to main page with session cookie (3 days = 259200 seconds)
         const response = new Response(null, {
           status: 302,
           headers: { 
             ...headers, 
             "Location": "/",
-            "Set-Cookie": `session=${sessionToken}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${7 * 24 * 60 * 60}`
+            "Set-Cookie": `session=${sessionToken}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${3 * 24 * 60 * 60}`
           },
         });
         

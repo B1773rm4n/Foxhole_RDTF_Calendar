@@ -96,6 +96,58 @@ export function updateUserTimezone(userId: number, timezone: string): void {
   stmt.run(timezone, userId);
 }
 
+// Session queries
+export interface Session {
+  id: number;
+  user_id: number;
+  token: string;
+  expires_at: string;
+  created_at: string;
+}
+
+export function createSession(userId: number, token: string, expiresAt: Date): void {
+  const db = getDatabase();
+  const stmt = db.prepare("INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)");
+  stmt.run(userId, token, expiresAt.toISOString());
+}
+
+export function getSessionByToken(token: string): Session | null {
+  const db = getDatabase();
+  const stmt = db.prepare("SELECT id, user_id, token, expires_at, created_at FROM sessions WHERE token = ? AND expires_at > datetime('now')");
+  const result = stmt.all(token);
+  
+  if (result.length === 0) {
+    return null;
+  }
+  
+  const row = result[0] as Record<string, unknown>;
+  return {
+    id: row.id as number,
+    user_id: row.user_id as number,
+    token: row.token as string,
+    expires_at: row.expires_at as string,
+    created_at: row.created_at as string,
+  };
+}
+
+export function deleteSession(token: string): void {
+  const db = getDatabase();
+  const stmt = db.prepare("DELETE FROM sessions WHERE token = ?");
+  stmt.run(token);
+}
+
+export function deleteExpiredSessions(): void {
+  const db = getDatabase();
+  const stmt = db.prepare("DELETE FROM sessions WHERE expires_at <= datetime('now')");
+  stmt.run();
+}
+
+export function deleteUserSessions(userId: number): void {
+  const db = getDatabase();
+  const stmt = db.prepare("DELETE FROM sessions WHERE user_id = ?");
+  stmt.run(userId);
+}
+
 export function getUserById(userId: number): User | null {
   const db = getDatabase();
   const stmt = db.prepare("SELECT id, discord_id, username, avatar_url, timezone, created_at FROM users WHERE id = ?");
