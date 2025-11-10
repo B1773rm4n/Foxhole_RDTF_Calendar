@@ -7,6 +7,7 @@ This bot provides role checking functionality for the Foxhole Calendar authentic
 The bot is designed to:
 - Verify Discord users have the required role in the specified server
 - Provide role checking services to the backend authentication system
+- Listen for messages in #bot-testing channel and respond with "hello"
 - Can be run as a standalone service for testing and verification
 
 ## Setup
@@ -25,9 +26,21 @@ The bot is designed to:
 2. Select scopes: `bot`
 3. Select bot permissions:
    - **Read Members** (or "View Server Members")
-   - **View Channels** (optional, for future features)
+   - **Send Messages** (required for responding to messages)
+   - **View Channels** (required to see channels)
 4. Copy the generated URL and open it in a browser
 5. Select your server and authorize
+
+### 2b. Enable Gateway Intents (Required for Message Listening)
+
+1. Go to "Bot" section in Discord Developer Portal
+2. Scroll down to "Privileged Gateway Intents"
+3. Enable:
+   - **MESSAGE CONTENT INTENT** (if you want to read message content - optional for this bot)
+   - **SERVER MEMBERS INTENT** (if you need member info - already needed for role checking)
+4. Save changes
+
+**Note:** For basic message listening, the bot uses `GUILDS` and `GUILD_MESSAGES` intents which don't require privileged intents.
 
 ### 3. Configure Environment Variables
 
@@ -59,7 +72,11 @@ This will:
 deno task bot:start
 ```
 
-This starts the bot as a standalone service. Currently, it only verifies connectivity and keeps running.
+This starts the bot as a standalone service. The bot will:
+- Verify connectivity
+- Connect to Discord Gateway
+- Listen for messages in the #bot-testing channel
+- Respond with "hello" to any message in that channel
 
 ### Use in Backend
 
@@ -70,7 +87,9 @@ The backend authentication system (`backend/auth.ts`) uses the `role_checker.ts`
 ```
 bot/
 ├── main.ts          # Bot entry point (standalone service)
+├── gateway.ts       # Discord Gateway WebSocket connection
 ├── role_checker.ts  # Role checking functions (used by backend)
+├── env_loader.ts    # Environment variable loader
 └── README.md        # This file
 ```
 
@@ -86,7 +105,16 @@ Provides functions that can be used by the backend:
 Standalone bot service that:
 - Verifies bot configuration
 - Tests bot connection and permissions
-- Can be extended with Discord event listeners
+- Connects to Discord Gateway for real-time message listening
+- Handles graceful shutdown
+
+### `gateway.ts`
+
+Discord Gateway WebSocket implementation that:
+- Connects to Discord Gateway
+- Handles heartbeats to keep connection alive
+- Listens for MESSAGE_CREATE events
+- Responds to messages in #bot-testing channel
 
 ## Integration with Backend
 

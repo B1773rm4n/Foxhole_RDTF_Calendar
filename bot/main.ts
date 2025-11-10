@@ -9,6 +9,7 @@
  */
 
 import { loadEnvFile } from "./env_loader.ts";
+import { connect, disconnect } from "./gateway.ts";
 
 // Load environment variables from .env file
 loadEnvFile();
@@ -67,8 +68,20 @@ async function testBotConnection(): Promise<boolean> {
       );
 
       if (!guildResponse.ok) {
-        console.error(`❌ Cannot access guild ${DISCORD_GUILD_ID}: ${guildResponse.status}`);
-        console.error("   Make sure the bot is in the server and has proper permissions");
+        if (guildResponse.status === 404) {
+          console.error(`❌ Guild ${DISCORD_GUILD_ID} not found or bot is not in the server`);
+          console.error("   Steps to fix:");
+          console.error("   1. Verify the guild ID is correct (right-click server → Copy Server ID)");
+          console.error("   2. Invite the bot to your server:");
+          console.error("      - Go to Discord Developer Portal → OAuth2 → URL Generator");
+          console.error("      - Select 'bot' scope");
+          console.error("      - Select 'Read Members' permission");
+          console.error("      - Copy the URL and open it in a browser");
+          console.error("      - Select your server and authorize");
+        } else {
+          console.error(`❌ Cannot access guild ${DISCORD_GUILD_ID}: ${guildResponse.status} ${guildResponse.statusText}`);
+          console.error("   Make sure the bot is in the server and has proper permissions");
+        }
         return false;
       }
 
@@ -131,10 +144,24 @@ async function main() {
   console.log("   The backend authentication system uses the role_checker.ts module");
   console.log("   to verify user roles during login.\n");
 
-  // Keep process alive (in case we add event listeners later)
-  console.log("🔄 Bot is running. Press Ctrl+C to stop.\n");
+  // Connect to Discord Gateway to listen for messages
+  console.log("🔌 Connecting to Discord Gateway for message listening...");
+  await connect();
+
+  // Handle graceful shutdown
+  const shutdown = () => {
+    console.log("\n🛑 Shutting down bot...");
+    disconnect();
+    Deno.exit(0);
+  };
+
+  Deno.addSignalListener("SIGINT", shutdown);
+  Deno.addSignalListener("SIGTERM", shutdown);
+
+  console.log("🔄 Bot is running. Listening for messages in #bot-testing.");
+  console.log("   Press Ctrl+C to stop.\n");
   
-  // Wait for interrupt signal
+  // Keep process alive
   await new Promise(() => {});
 }
 
