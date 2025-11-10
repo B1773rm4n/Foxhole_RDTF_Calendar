@@ -212,9 +212,19 @@ function renderWeeklyGrid() {
             // Make cell clickable
             cell.addEventListener('click', (e) => {
                 if (e.target === cell) {
+                    e.stopPropagation();
                     const dateStr = cell.dataset.date;
                     if (globalThis.openAvailabilityModal) {
                         globalThis.openAvailabilityModal(dateStr);
+                    } else {
+                        // Retry after a short delay in case scripts are still loading
+                        setTimeout(() => {
+                            if (globalThis.openAvailabilityModal) {
+                                globalThis.openAvailabilityModal(dateStr);
+                            } else {
+                                console.error('openAvailabilityModal is not available');
+                            }
+                        }, 100);
                     }
                 }
             });
@@ -301,9 +311,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Setup buttons
     const addBtn = document.getElementById('add-availability-overview-btn');
     if (addBtn) {
-        addBtn.addEventListener('click', () => {
+        addBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             if (globalThis.openAvailabilityModal) {
                 globalThis.openAvailabilityModal();
+            } else {
+                // Retry after a short delay in case scripts are still loading
+                setTimeout(() => {
+                    if (globalThis.openAvailabilityModal) {
+                        globalThis.openAvailabilityModal();
+                    } else {
+                        console.error('openAvailabilityModal is not available');
+                        alert('Availability modal is not ready. Please refresh the page.');
+                    }
+                }, 100);
             }
         });
     }
@@ -317,8 +339,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (editLink) {
         editLink.addEventListener('click', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             if (globalThis.openAvailabilityModal) {
                 globalThis.openAvailabilityModal();
+            } else {
+                // Retry after a short delay in case scripts are still loading
+                setTimeout(() => {
+                    if (globalThis.openAvailabilityModal) {
+                        globalThis.openAvailabilityModal();
+                    } else {
+                        console.error('openAvailabilityModal is not available');
+                        alert('Availability modal is not ready. Please refresh the page.');
+                    }
+                }, 100);
             }
         });
     }

@@ -140,9 +140,19 @@ function renderCalendar() {
         });
         
         // Make day clickable to add availability
-        dayCell.addEventListener('click', () => {
+        dayCell.addEventListener('click', (e) => {
+            e.stopPropagation();
             if (globalThis.openAvailabilityModal) {
                 globalThis.openAvailabilityModal(dateStr);
+            } else {
+                // Retry after a short delay in case scripts are still loading
+                setTimeout(() => {
+                    if (globalThis.openAvailabilityModal) {
+                        globalThis.openAvailabilityModal(dateStr);
+                    } else {
+                        console.error('openAvailabilityModal is not available');
+                    }
+                }, 100);
             }
         });
         
@@ -190,10 +200,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Setup add availability button
     const addBtn = document.getElementById('add-availability-btn');
     if (addBtn) {
-        addBtn.addEventListener('click', () => {
-            // Open availability modal
+        addBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // Open availability modal with retry
             if (globalThis.openAvailabilityModal) {
                 globalThis.openAvailabilityModal();
+            } else {
+                // Retry after a short delay in case scripts are still loading
+                setTimeout(() => {
+                    if (globalThis.openAvailabilityModal) {
+                        globalThis.openAvailabilityModal();
+                    } else {
+                        console.error('openAvailabilityModal is not available');
+                        alert('Availability modal is not ready. Please refresh the page.');
+                    }
+                }, 100);
             }
         });
     }

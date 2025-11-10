@@ -354,7 +354,14 @@ function renderAvailabilityCalendar(containerId, monthYearId, prevBtnId, nextBtn
 // Open availability modal
 function openAvailabilityModal(date = null) {
     const modal = document.getElementById('availability-modal');
-    if (!modal) return;
+    if (!modal) {
+        console.error('Availability modal element not found');
+        // Retry after DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => openAvailabilityModal(date));
+        }
+        return;
+    }
     
     // Reset form
     const form = document.getElementById('availability-form');
@@ -384,14 +391,23 @@ function openAvailabilityModal(date = null) {
     renderAvailabilityCalendar('calendar-days-only', 'calendar-month-year-only', 'calendar-prev-only', 'calendar-next-only');
     
     // Reset tabs
-    document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    document.querySelector('[data-tab="dates-times"]').classList.add('active');
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
-    document.getElementById('dates-times-content').classList.add('active');
+    const tabButtons = document.querySelectorAll('.tab-button');
+    if (tabButtons.length > 0) {
+        tabButtons.forEach(btn => {
+            btn.classList.remove('active');
+        });
+        const datesTimesTab = document.querySelector('[data-tab="dates-times"]');
+        if (datesTimesTab) {
+            datesTimesTab.classList.add('active');
+        }
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        const datesTimesContent = document.getElementById('dates-times-content');
+        if (datesTimesContent) {
+            datesTimesContent.classList.add('active');
+        }
+    }
     
     // Show modal
     modal.style.display = 'block';
@@ -511,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Make functions globally available
+// Make functions globally available immediately (not waiting for DOMContentLoaded)
 globalThis.openShiftModal = openShiftModal;
 globalThis.closeShiftModal = closeShiftModal;
 globalThis.openAvailabilityModal = openAvailabilityModal;
