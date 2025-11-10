@@ -3,7 +3,11 @@
  */
 
 // Ensure API_BASE is available (fallback to production URL if not set)
-const API_BASE = window.API_BASE || 'https://rotdust-calendar.asuka-shikinami.club';
+// Check if API_BASE is already set globally first
+if (typeof window.API_BASE === 'undefined') {
+    window.API_BASE = 'https://rotdust-calendar.asuka-shikinami.club';
+}
+const API_BASE = window.API_BASE;
 
 let currentDate = new Date();
 let shifts = [];
