@@ -9,18 +9,7 @@ if (typeof globalThis.API_BASE === 'undefined') {
 }
 const API_BASE = globalThis.API_BASE;
 
-let currentWeekStart = getMondayOfCurrentWeek();
 let weeklyShifts = [];
-
-// Get Monday of current week
-function getMondayOfCurrentWeek() {
-    const today = new Date();
-    const day = today.getDay();
-    const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
-    const monday = new Date(today.setDate(diff));
-    monday.setHours(0, 0, 0, 0);
-    return monday;
-}
 
 // Format date for display
 function formatDateDisplay(date) {
@@ -123,10 +112,10 @@ function renderWeeklyGrid() {
     const nextWeekBtn = document.createElement('button');
     nextWeekBtn.className = 'week-nav-btn';
     nextWeekBtn.innerHTML = '→';
-    nextWeekBtn.addEventListener('click', () => {
+    nextWeekBtn.onclick = () => {
         currentWeekStart.setDate(currentWeekStart.getDate() + 7);
         loadWeeklyShifts();
-    });
+    };
     grid.appendChild(nextWeekBtn);
     
     // Create time slots (0:00 to 23:00)
@@ -138,7 +127,7 @@ function renderWeeklyGrid() {
         grid.appendChild(timeLabel);
         
         // Day cells for this hour
-        weekDays.forEach((day, dayIndex) => {
+        weekDays.forEach((day) => {
             const cell = document.createElement('div');
             cell.className = 'time-cell';
             cell.dataset.date = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
@@ -207,26 +196,6 @@ function renderWeeklyGrid() {
                 }
                 
                 cell.appendChild(shiftBlock);
-            });
-            
-            // Make cell clickable
-            cell.addEventListener('click', (e) => {
-                if (e.target === cell) {
-                    e.stopPropagation();
-                    const dateStr = cell.dataset.date;
-                    if (globalThis.openAvailabilityModal) {
-                        globalThis.openAvailabilityModal(dateStr);
-                    } else {
-                        // Retry after a short delay in case scripts are still loading
-                        setTimeout(() => {
-                            if (globalThis.openAvailabilityModal) {
-                                globalThis.openAvailabilityModal(dateStr);
-                            } else {
-                                console.error('openAvailabilityModal is not available');
-                            }
-                        }, 100);
-                    }
-                }
             });
             
             grid.appendChild(cell);
@@ -308,61 +277,14 @@ function copyLinkToClipboard() {
 
 // Initialize overview
 document.addEventListener('DOMContentLoaded', async () => {
-    // Setup buttons
-    const addBtn = document.getElementById('add-availability-overview-btn');
-    if (addBtn) {
-        addBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (globalThis.openAvailabilityModal) {
-                globalThis.openAvailabilityModal();
-            } else {
-                // Retry after a short delay in case scripts are still loading
-                setTimeout(() => {
-                    if (globalThis.openAvailabilityModal) {
-                        globalThis.openAvailabilityModal();
-                    } else {
-                        console.error('openAvailabilityModal is not available');
-                        alert('Availability modal is not ready. Please refresh the page.');
-                    }
-                }, 100);
-            }
-        });
-    }
-    
-    const copyBtn = document.getElementById('copy-link-btn');
-    if (copyBtn) {
-        copyBtn.addEventListener('click', copyLinkToClipboard);
-    }
-    
-    const editLink = document.getElementById('edit-availability-link');
-    if (editLink) {
-        editLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (globalThis.openAvailabilityModal) {
-                globalThis.openAvailabilityModal();
-            } else {
-                // Retry after a short delay in case scripts are still loading
-                setTimeout(() => {
-                    if (globalThis.openAvailabilityModal) {
-                        globalThis.openAvailabilityModal();
-                    } else {
-                        console.error('openAvailabilityModal is not available');
-                        alert('Availability modal is not ready. Please refresh the page.');
-                    }
-                }, 100);
-            }
-        });
-    }
-    
     // Load initial data
     await loadWeeklyShifts();
     
     // Refresh every minute
     setInterval(loadWeeklyShifts, 60000);
     
-    // Make refresh function globally available
+    // Make functions globally available
     globalThis.refreshOverview = loadWeeklyShifts;
+    globalThis.copyLinkToClipboard = copyLinkToClipboard;
 });
 

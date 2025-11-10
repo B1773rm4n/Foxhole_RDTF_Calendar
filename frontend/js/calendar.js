@@ -9,7 +9,6 @@ if (typeof globalThis.API_BASE === 'undefined') {
 }
 const API_BASE = globalThis.API_BASE;
 
-let currentDate = new Date();
 let shifts = [];
 let currentUser = null;
 
@@ -138,24 +137,6 @@ function renderCalendar() {
             
             dayCell.appendChild(shiftEl);
         });
-        
-        // Make day clickable to add availability
-        dayCell.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (globalThis.openAvailabilityModal) {
-                globalThis.openAvailabilityModal(dateStr);
-            } else {
-                // Retry after a short delay in case scripts are still loading
-                setTimeout(() => {
-                    if (globalThis.openAvailabilityModal) {
-                        globalThis.openAvailabilityModal(dateStr);
-                    } else {
-                        console.error('openAvailabilityModal is not available');
-                    }
-                }, 100);
-            }
-        });
-        
         grid.appendChild(dayCell);
     }
 }
@@ -185,45 +166,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
     
-    // Setup navigation buttons
-    const prevBtn = document.getElementById('prev-month-btn');
-    const nextBtn = document.getElementById('next-month-btn');
-    
-    if (prevBtn) {
-        prevBtn.addEventListener('click', previousMonth);
-    }
-    
-    if (nextBtn) {
-        nextBtn.addEventListener('click', nextMonth);
-    }
-    
-    // Setup add availability button
-    const addBtn = document.getElementById('add-availability-btn');
-    if (addBtn) {
-        addBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            // Open availability modal with retry
-            if (globalThis.openAvailabilityModal) {
-                globalThis.openAvailabilityModal();
-            } else {
-                // Retry after a short delay in case scripts are still loading
-                setTimeout(() => {
-                    if (globalThis.openAvailabilityModal) {
-                        globalThis.openAvailabilityModal();
-                    } else {
-                        console.error('openAvailabilityModal is not available');
-                        alert('Availability modal is not ready. Please refresh the page.');
-                    }
-                }, 100);
-            }
-        });
-    }
-    
     // Load initial data
     await loadShifts();
     
-    // Make refreshCalendar globally available
+    // Make functions globally available
     globalThis.refreshCalendar = refreshCalendar;
+    globalThis.previousMonth = previousMonth;
+    globalThis.nextMonth = nextMonth;
 });
 

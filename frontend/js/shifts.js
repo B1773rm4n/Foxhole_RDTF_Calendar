@@ -160,7 +160,6 @@ function openShiftModal(date, shift = null) {
         document.getElementById('shift-date').value = date;
         
         // Set default times for the selected date
-        const [year, month, day] = date.split('-');
         document.getElementById('shift-start-time').value = `${date}T09:00`;
         document.getElementById('shift-end-time').value = `${date}T17:00`;
         
@@ -181,7 +180,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadCurrentUser();
     
     const form = document.getElementById('shift-form');
-    const deleteBtn = document.getElementById('delete-shift-btn');
     const closeBtn = document.querySelector('.close');
     
     // Handle form submission
@@ -220,28 +218,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
     
-    // Handle delete
-    deleteBtn.addEventListener('click', async () => {
-        const shiftId = document.getElementById('shift-id').value;
-        if (!shiftId) return;
-        
-        if (confirm('Are you sure you want to delete this shift?')) {
-            try {
-                await deleteShift(parseInt(shiftId));
-                closeShiftModal();
-                
-                // Refresh calendar and weekly overview
-                if (globalThis.refreshCalendar) {
-                    globalThis.refreshCalendar();
-                }
-                if (globalThis.refreshWeeklyOverview) {
-                    globalThis.refreshWeeklyOverview();
-                }
-            } catch (error) {
-                alert('Error deleting shift: ' + error.message);
-            }
-        }
-    });
+    // Delete handler will be called via onclick
     
     // Close modal on X click
     if (closeBtn) {
@@ -259,7 +236,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Availability Modal Functions
 let availabilityCalendarDate = new Date();
-let selectedDates = new Set();
 
 // Generate time options for select dropdowns
 function generateTimeOptions() {
@@ -274,7 +250,7 @@ function generateTimeOptions() {
 }
 
 // Render calendar in modal
-function renderAvailabilityCalendar(containerId, monthYearId, prevBtnId, nextBtnId) {
+function renderAvailabilityCalendar(containerId, monthYearId) {
     const container = document.getElementById(containerId);
     const monthYearEl = document.getElementById(monthYearId);
     if (!container) return;
@@ -332,23 +308,7 @@ function renderAvailabilityCalendar(containerId, monthYearId, prevBtnId, nextBtn
         container.appendChild(dayCell);
     }
     
-    // Setup navigation buttons
-    const prevBtn = document.getElementById(prevBtnId);
-    const nextBtn = document.getElementById(nextBtnId);
-    
-    if (prevBtn) {
-        prevBtn.onclick = () => {
-            availabilityCalendarDate.setMonth(availabilityCalendarDate.getMonth() - 1);
-            renderAvailabilityCalendar(containerId, monthYearId, prevBtnId, nextBtnId);
-        };
-    }
-    
-    if (nextBtn) {
-        nextBtn.onclick = () => {
-            availabilityCalendarDate.setMonth(availabilityCalendarDate.getMonth() + 1);
-            renderAvailabilityCalendar(containerId, monthYearId, prevBtnId, nextBtnId);
-        };
-    }
+    // Navigation buttons are handled via onclick in HTML
 }
 
 // Open availability modal
@@ -425,34 +385,10 @@ function closeAvailabilityModal() {
 document.addEventListener('DOMContentLoaded', () => {
     const availabilityForm = document.getElementById('availability-form');
     const closeBtn = document.querySelector('#availability-modal .close');
-    const advancedToggle = document.getElementById('advanced-toggle');
     
-    // Tab switching
-    document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tabName = btn.dataset.tab;
-            
-            // Update tab buttons
-            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(`${tabName}-content`).classList.add('active');
-        });
-    });
+    // Tab switching is handled via onclick in HTML
     
-    // Advanced options toggle
-    if (advancedToggle) {
-        advancedToggle.addEventListener('click', () => {
-            const advancedContent = document.getElementById('advanced-options');
-            const isVisible = advancedContent.style.display !== 'none';
-            advancedContent.style.display = isVisible ? 'none' : 'block';
-            advancedToggle.textContent = isVisible ? '▼' : '▲';
-        });
-    }
+    // Advanced options toggle is handled via onclick in HTML
     
     // Form submission
     if (availabilityForm) {
@@ -527,9 +463,85 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Delete shift handler
+async function deleteShiftHandler() {
+    const shiftId = document.getElementById('shift-id').value;
+    if (!shiftId) return;
+    
+    if (confirm('Are you sure you want to delete this shift?')) {
+        try {
+            await deleteShift(parseInt(shiftId));
+            closeShiftModal();
+            
+            // Refresh calendar and weekly overview
+            if (globalThis.refreshCalendar) {
+                globalThis.refreshCalendar();
+            }
+            if (globalThis.refreshOverview) {
+                globalThis.refreshOverview();
+            }
+        } catch (error) {
+            alert('Error deleting shift: ' + error.message);
+        }
+    }
+}
+
+// Delete availability handler (placeholder - availability deletion not yet implemented)
+function deleteAvailability() {
+    alert('Delete availability functionality not yet implemented');
+}
+
+// Calendar navigation functions
+function navigateAvailabilityCalendar(direction) {
+    if (direction === 'prev') {
+        availabilityCalendarDate.setMonth(availabilityCalendarDate.getMonth() - 1);
+    } else {
+        availabilityCalendarDate.setMonth(availabilityCalendarDate.getMonth() + 1);
+    }
+    
+    // Update both calendars to keep them in sync
+    renderAvailabilityCalendar('calendar-days', 'calendar-month-year', 'calendar-prev', 'calendar-next');
+    renderAvailabilityCalendar('calendar-days-only', 'calendar-month-year-only', 'calendar-prev-only', 'calendar-next-only');
+}
+
+// Tab switching function
+function switchTab(tabName) {
+    // Update tab buttons
+    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+    const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+    if (activeButton) {
+        activeButton.classList.add('active');
+    }
+    
+    // Update tab content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    const activeContent = document.getElementById(`${tabName}-content`);
+    if (activeContent) {
+        activeContent.classList.add('active');
+    }
+}
+
+// Advanced options toggle
+function toggleAdvancedOptions() {
+    const advancedContent = document.getElementById('advanced-options');
+    const advancedToggle = document.getElementById('advanced-toggle');
+    if (advancedContent && advancedToggle) {
+        const isVisible = advancedContent.style.display !== 'none';
+        advancedContent.style.display = isVisible ? 'none' : 'block';
+        advancedToggle.textContent = isVisible ? '▼' : '▲';
+    }
+}
+
 // Make functions globally available immediately (not waiting for DOMContentLoaded)
 globalThis.openShiftModal = openShiftModal;
 globalThis.closeShiftModal = closeShiftModal;
 globalThis.openAvailabilityModal = openAvailabilityModal;
 globalThis.closeAvailabilityModal = closeAvailabilityModal;
+globalThis.deleteShiftHandler = deleteShiftHandler;
+globalThis.deleteAvailability = deleteAvailability;
+globalThis.navigateAvailabilityCalendar = navigateAvailabilityCalendar;
+globalThis.toggleAdvancedOptions = toggleAdvancedOptions;
+globalThis.switchTab = switchTab;
 

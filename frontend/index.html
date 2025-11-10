@@ -23,7 +23,7 @@
                 </div>
                 <div class="user-info">
                     <span id="username"></span>
-                    <button id="logout-btn" class="logout-button">Logout</button>
+                    <button id="logout-btn" class="logout-button" onclick="logout()">Logout</button>
                 </div>
             </div>
         </header>
@@ -35,14 +35,14 @@
                     <h1 id="overview-title" class="overview-title">Current Week</h1>
                     <div class="overview-date-section">
                         <span id="overview-date-range" class="overview-date-range"></span>
-                        <a href="#" id="edit-availability-link" class="edit-link">Edit availability</a>
+                        <a href="#" id="edit-availability-link" class="edit-link" onclick="openAvailabilityModal(); return false;">Edit availability</a>
                     </div>
                 </div>
                 <div class="overview-actions">
-                    <button id="copy-link-btn" class="copy-link-button">
+                    <button id="copy-link-btn" class="copy-link-button" onclick="copyLinkToClipboard()">
                         <span class="copy-icon">📋</span> Copy link
                     </button>
-                    <button id="add-availability-overview-btn" class="add-button">+ Add availability</button>
+                    <button id="add-availability-overview-btn" onclick="openAvailabilityModal()" class="add-button">+ Add availability</button>
                 </div>
             </div>
             
@@ -63,13 +63,13 @@
         <!-- Monthly Calendar View (hidden by default) -->
         <main id="monthly-calendar" class="calendar-container" style="display: none;">
             <div class="calendar-nav">
-                <button id="prev-month-btn" class="nav-button">← Previous</button>
+                <button id="prev-month-btn" class="nav-button" onclick="previousMonth()">← Previous</button>
                 <h2 id="current-month-year"></h2>
-                <button id="next-month-btn" class="nav-button">Next →</button>
+                <button id="next-month-btn" class="nav-button" onclick="nextMonth()">Next →</button>
             </div>
             
             <div class="calendar-actions">
-                <button id="add-availability-btn" class="add-button">+ Add Availability</button>
+                <button id="add-availability-btn" class="add-button" onclick="openAvailabilityModal()">+ Add Availability</button>
                 <p class="help-text">Click on any day in the calendar or use the button above to add your availability</p>
             </div>
             
@@ -93,8 +93,8 @@
                     
                     <!-- Tabs -->
                     <div class="modal-tabs">
-                        <button type="button" class="tab-button active" data-tab="dates-times">Dates and times</button>
-                        <button type="button" class="tab-button" data-tab="dates-only">Dates only</button>
+                        <button type="button" class="tab-button active" data-tab="dates-times" onclick="switchTab('dates-times')">Dates and times</button>
+                        <button type="button" class="tab-button" data-tab="dates-only" onclick="switchTab('dates-only')">Dates only</button>
                     </div>
                     
                     <!-- Dates and Times Tab Content -->
@@ -124,9 +124,9 @@
                             <!-- Calendar -->
                             <div class="calendar-picker">
                                 <div class="calendar-header">
-                                    <button type="button" class="calendar-nav-btn" id="calendar-prev">←</button>
+                                    <button type="button" class="calendar-nav-btn" id="calendar-prev" onclick="navigateAvailabilityCalendar('prev', 'dates-times')">←</button>
                                     <h4 id="calendar-month-year"></h4>
-                                    <button type="button" class="calendar-nav-btn" id="calendar-next">→</button>
+                                    <button type="button" class="calendar-nav-btn" id="calendar-next" onclick="navigateAvailabilityCalendar('next', 'dates-times')">→</button>
                                 </div>
                                 <div class="calendar-weekdays">
                                     <div class="weekday">S</div>
@@ -154,9 +154,9 @@
                             <!-- Calendar -->
                             <div class="calendar-picker">
                                 <div class="calendar-header">
-                                    <button type="button" class="calendar-nav-btn" id="calendar-prev-only">←</button>
+                                    <button type="button" class="calendar-nav-btn" id="calendar-prev-only" onclick="navigateAvailabilityCalendar('prev', 'dates-only')">←</button>
                                     <h4 id="calendar-month-year-only"></h4>
-                                    <button type="button" class="calendar-nav-btn" id="calendar-next-only">→</button>
+                                    <button type="button" class="calendar-nav-btn" id="calendar-next-only" onclick="navigateAvailabilityCalendar('next', 'dates-only')">→</button>
                                 </div>
                                 <div class="calendar-weekdays">
                                     <div class="weekday">S</div>
@@ -188,7 +188,7 @@
                     <div class="form-section">
                         <div class="advanced-options-header">
                             <h3 class="section-title">Advanced options</h3>
-                            <button type="button" class="chevron-btn" id="advanced-toggle">▼</button>
+                            <button type="button" class="chevron-btn" id="advanced-toggle" onclick="toggleAdvancedOptions()">▼</button>
                         </div>
                         <div id="advanced-options" class="advanced-options-content" style="display: none;">
                             <label for="availability-description">Description (optional):</label>
@@ -199,7 +199,7 @@
                     <!-- Form Actions -->
                     <div class="form-actions">
                         <button type="submit" class="submit-button create-button">Create availability</button>
-                        <button type="button" id="delete-availability-btn" class="delete-button" style="display: none;">Delete</button>
+                        <button type="button" id="delete-availability-btn" class="delete-button" style="display: none;" onclick="deleteAvailability()">Delete</button>
                         <button type="button" class="cancel-button" onclick="closeAvailabilityModal()">Cancel</button>
                     </div>
                 </form>
@@ -226,7 +226,7 @@
                     
                     <div class="form-actions">
                         <button type="submit" class="submit-button">Save</button>
-                        <button type="button" id="delete-shift-btn" class="delete-button" style="display: none;">Delete</button>
+                        <button type="button" id="delete-shift-btn" class="delete-button" style="display: none;" onclick="deleteShiftHandler()">Delete</button>
                         <button type="button" class="cancel-button" onclick="closeShiftModal()">Cancel</button>
                     </div>
                 </form>

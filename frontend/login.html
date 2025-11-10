@@ -11,13 +11,13 @@
         <div class="login-box">
             <h1>Foxhole RotDust Calendar</h1>
             <p>Please login with Discord to continue</p>
-            <button id="discord-login-btn" class="discord-button">Login with Discord</button>
+            <button id="discord-login-btn" class="discord-button" onclick="handleDiscordLogin()">Login with Discord</button>
         </div>
     </div>
     <script src="/js/auth.js"></script>
     <script>
         // API_BASE is already declared in auth.js, so we can use it directly
-        document.getElementById('discord-login-btn').addEventListener('click', async () => {
+        async function handleDiscordLogin() {
             const btn = document.getElementById('discord-login-btn');
             const originalText = btn.textContent;
             
@@ -66,7 +66,7 @@
                     alert('Failed to initiate login. Please make sure the backend server is running.');
                 }
             }
-        });
+        }
     </script>
 </body>
 </html>

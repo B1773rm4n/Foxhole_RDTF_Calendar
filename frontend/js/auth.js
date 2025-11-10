@@ -58,10 +58,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
     
-    // Setup logout button if it exists
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', logout);
-    }
+    // Make logout function globally available
+    globalThis.logout = logout;
 });
 
