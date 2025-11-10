@@ -11,7 +11,16 @@
         <header class="app-header">
             <h1>Foxhole RotDust Calendar</h1>
             <div class="header-controls">
-                <select id="timezone-select" class="timezone-select"></select>
+                <div class="timezone-select-wrapper">
+                    <div class="timezone-select-display" id="timezone-select-display">
+                        <span id="timezone-display-text">UTC</span>
+                        <span class="timezone-arrow">▼</span>
+                    </div>
+                    <div class="timezone-dropdown" id="timezone-dropdown" style="display: none;">
+                        <input type="text" id="timezone-search" class="timezone-search" placeholder="Search timezone...">
+                        <div class="timezone-list" id="timezone-list"></div>
+                    </div>
+                </div>
                 <div class="user-info">
                     <span id="username"></span>
                     <button id="logout-btn" class="logout-button">Logout</button>

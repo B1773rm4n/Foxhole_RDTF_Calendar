@@ -2,8 +2,6 @@
  * Shift management logic
  */
 
-// Detect if we're running on frontend dev server (port 3000) and set API base accordingly
-const API_BASE = window.location.port === '3000' ? 'http://localhost:8000' : '';
 let currentUserId = null;
 
 // Load current user

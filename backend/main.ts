@@ -93,8 +93,14 @@ async function handleRequest(request: Request): Promise<Response> {
   // Serve HTML files
   if (path === "/" || path === "/index.html") {
     try {
-      const file = await Deno.readFile("frontend/index.html");
-      return new Response(file, {
+      let html = new TextDecoder().decode(await Deno.readFile("frontend/index.html"));
+      const apiBase = Deno.env.get("API_BASE") || "";
+      // Inject API_BASE before the first script tag
+      html = html.replace(
+        "<head>",
+        `<head>\n    <script>window.API_BASE = ${JSON.stringify(apiBase)};</script>`
+      );
+      return new Response(html, {
         headers: { ...headers, "Content-Type": "text/html" },
       });
     } catch {
@@ -104,8 +110,14 @@ async function handleRequest(request: Request): Promise<Response> {
 
   if (path === "/login.html") {
     try {
-      const file = await Deno.readFile("frontend/login.html");
-      return new Response(file, {
+      let html = new TextDecoder().decode(await Deno.readFile("frontend/login.html"));
+      const apiBase = Deno.env.get("API_BASE") || "";
+      // Inject API_BASE before the first script tag
+      html = html.replace(
+        "<head>",
+        `<head>\n    <script>window.API_BASE = ${JSON.stringify(apiBase)};</script>`
+      );
+      return new Response(html, {
         headers: { ...headers, "Content-Type": "text/html" },
       });
     } catch {

@@ -90,13 +90,104 @@ body {
     flex-wrap: wrap;
 }
 
-.timezone-select {
+/* Timezone Select Wrapper */
+.timezone-select-wrapper {
+    position: relative;
+    min-width: 200px;
+}
+
+.timezone-select-display {
     padding: 8px 12px;
     border: 1px solid #ddd;
     border-radius: 5px;
     font-size: 14px;
     background: white;
     cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+    transition: border-color 0.2s;
+}
+
+.timezone-select-display:hover {
+    border-color: #667eea;
+}
+
+.timezone-select-display.open {
+    border-color: #667eea;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.timezone-arrow {
+    font-size: 10px;
+    color: #666;
+    transition: transform 0.2s;
+}
+
+.timezone-select-display.open .timezone-arrow {
+    transform: rotate(180deg);
+}
+
+.timezone-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.timezone-search {
+    padding: 8px 12px;
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 14px;
+    outline: none;
+    background: white;
+}
+
+.timezone-search:focus {
+    border-bottom-color: #667eea;
+}
+
+.timezone-list {
+    overflow-y: auto;
+    max-height: 250px;
+    padding: 4px 0;
+}
+
+.timezone-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    user-select: none;
+}
+
+.timezone-item:hover {
+    background-color: #f0f0f0;
+}
+
+.timezone-item.selected {
+    background-color: #667eea;
+    color: white;
+}
+
+.timezone-item.highlighted {
+    background-color: #e8f4f8;
+}
+
+.timezone-item.highlighted.selected {
+    background-color: #5568d3;
 }
 
 .user-info {
@@ -416,6 +507,19 @@ body {
     .header-controls {
         width: 100%;
         justify-content: space-between;
+    }
+    
+    .timezone-select-wrapper {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .timezone-dropdown {
+        max-height: 250px;
+    }
+    
+    .timezone-list {
+        max-height: 200px;
     }
     
     .calendar-nav {
