@@ -57,6 +57,9 @@ Create a `.env` file or set the following environment variables:
 DISCORD_CLIENT_ID=your_discord_client_id
 DISCORD_CLIENT_SECRET=your_discord_client_secret
 DISCORD_REDIRECT_URI=http://localhost:8000/api/auth/callback
+DISCORD_GUILD_ID=1436299636963938355  # Optional: Restrict to specific Discord server
+DISCORD_REQUIRED_ROLE=Member  # Optional: Require specific role (requires DISCORD_GUILD_ID)
+DISCORD_BOT_TOKEN=your_bot_token  # Optional: Bot token for role checking (recommended)
 SESSION_SECRET=your_random_secret_key
 PORT=8000  # Optional, defaults to 8000
 ```
@@ -68,6 +71,17 @@ Discord OAuth Setup
 3. Go to OAuth2 section
 4. Add redirect URI: `http://localhost:8000/api/auth/callback`
 5. Copy Client ID and Client Secret to environment variables
+
+Discord Bot Setup (for Role Checking)
+--------------------------------------
+To restrict access to users with specific roles, set up a Discord bot:
+
+1. In your Discord application, go to "Bot" section
+2. Create a bot and copy the bot token
+3. Invite bot to your server with "Read Members" permission
+4. Add `DISCORD_BOT_TOKEN` to your `.env` file
+
+See `bot/README.md` for detailed setup instructions.
 
 Running the Application
 -----------------------
@@ -90,6 +104,18 @@ This starts a simple file server on `http://localhost:3000` serving only the fro
 deno task start
 ```
 Starts the production server at `http://localhost:8000`
+
+**Discord Bot (Testing):**
+```bash
+deno task bot:test
+```
+Tests bot connection and configuration. Useful for verifying bot setup.
+
+**Discord Bot (Standalone):**
+```bash
+deno task bot:start
+```
+Starts the bot as a standalone service. Note: The bot doesn't need to run separately for authentication to work - the backend uses the bot token directly.
 
 
 Testing

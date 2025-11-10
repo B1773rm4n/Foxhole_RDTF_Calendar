@@ -3,12 +3,15 @@
  */
 
 import { getUserByDiscordId, createUser, type User } from "./database.ts";
+import { checkUserHasRole as botCheckUserHasRole, checkUserInGuild as botCheckUserInGuild } from "../bot/role_checker.ts";
 
 // These should be set via environment variables
 const DISCORD_CLIENT_ID = Deno.env.get("DISCORD_CLIENT_ID") || "";
 const DISCORD_CLIENT_SECRET = Deno.env.get("DISCORD_CLIENT_SECRET") || "";
 const DISCORD_REDIRECT_URI = Deno.env.get("DISCORD_REDIRECT_URI") || "http://localhost:8000/api/auth/callback";
-const SESSION_SECRET = Deno.env.get("SESSION_SECRET") || "change-me-in-production";
+const DISCORD_GUILD_ID = Deno.env.get("DISCORD_GUILD_ID") || "";
+const DISCORD_REQUIRED_ROLE = Deno.env.get("DISCORD_REQUIRED_ROLE") || "Member";
+const DISCORD_BOT_TOKEN = Deno.env.get("DISCORD_BOT_TOKEN") || ""; // Optional: for role checking
 
 // In-memory session store (in production, use Redis or similar)
 const sessions = new Map<string, { userId: number; expiresAt: number }>();
@@ -75,11 +78,14 @@ function cleanupExpiredSessions(): void {
  * Get Discord OAuth authorization URL
  */
 export function getDiscordAuthUrl(): string {
+  // Request guilds scope to check if user is in the required guild
+  const scopes = DISCORD_BOT_TOKEN ? "identify guilds" : "identify guilds guilds.members.read";
+  
   const params = new URLSearchParams({
     client_id: DISCORD_CLIENT_ID,
     redirect_uri: DISCORD_REDIRECT_URI,
     response_type: "code",
-    scope: "identify"
+    scope: scopes
   });
   
   return `https://discord.com/api/oauth2/authorize?${params.toString()}`;
@@ -136,6 +142,93 @@ async function getDiscordUserInfo(accessToken: string): Promise<{ id: string; us
 }
 
 /**
+ * Check if user is in the required guild
+ * Uses bot token if available, otherwise uses OAuth token
+ */
+async function checkUserInGuild(accessToken: string, userId?: string): Promise<boolean> {
+  if (!DISCORD_GUILD_ID) {
+    return true; // No guild restriction if not configured
+  }
+
+  // Try bot method first (more reliable) if we have userId
+  if (DISCORD_BOT_TOKEN && userId) {
+    return await botCheckUserInGuild(userId);
+  }
+
+  // Fallback to OAuth method
+  const response = await fetch("https://discord.com/api/users/@me/guilds", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  
+  if (!response.ok) {
+    return false;
+  }
+  
+  const guilds = await response.json() as Array<{ id: string }>;
+  return guilds.some(guild => guild.id === DISCORD_GUILD_ID);
+}
+
+/**
+ * Check if user has the required role in the guild
+ * Uses bot token if available, otherwise uses OAuth token with guilds.members.read scope
+ */
+async function checkUserHasRole(userId: string, accessToken?: string): Promise<boolean> {
+  if (!DISCORD_GUILD_ID || !DISCORD_REQUIRED_ROLE) {
+    return true; // No role restriction if not configured
+  }
+
+  // Method 1: Use bot token (recommended) - use bot module
+  if (DISCORD_BOT_TOKEN) {
+    return await botCheckUserHasRole(userId, DISCORD_REQUIRED_ROLE);
+  }
+  
+  // Method 2: Use OAuth token (requires guilds.members.read scope)
+  if (accessToken) {
+    try {
+      const response = await fetch(`https://discord.com/api/users/@me/guilds/${DISCORD_GUILD_ID}/member`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      
+      if (!response.ok) {
+        return false;
+      }
+      
+      const member = await response.json() as { roles: string[] };
+      
+      // Get all roles in the guild to find role ID by name
+      const rolesResponse = await fetch(`https://discord.com/api/guilds/${DISCORD_GUILD_ID}/roles`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      
+      if (!rolesResponse.ok) {
+        return false;
+      }
+      
+      const roles = await rolesResponse.json() as Array<{ id: string; name: string }>;
+      const requiredRole = roles.find(role => role.name === DISCORD_REQUIRED_ROLE);
+      
+      if (!requiredRole) {
+        console.warn(`Role "${DISCORD_REQUIRED_ROLE}" not found in guild`);
+        return false;
+      }
+      
+      return member.roles.includes(requiredRole.id);
+    } catch (error) {
+      console.error("Error checking role with OAuth token:", error);
+      return false;
+    }
+  }
+  
+  return false;
+}
+
+/**
  * Handle Discord OAuth callback
  */
 export async function handleDiscordCallback(code: string): Promise<{ user: User; sessionToken: string }> {
@@ -144,6 +237,22 @@ export async function handleDiscordCallback(code: string): Promise<{ user: User;
   
   // Get user info from Discord
   const discordUser = await getDiscordUserInfo(accessToken);
+  
+  // Check if user is in required guild
+  if (DISCORD_GUILD_ID) {
+    const inGuild = await checkUserInGuild(accessToken, discordUser.id);
+    if (!inGuild) {
+      throw new Error(`You must be a member of the required Discord server to access this application.`);
+    }
+  }
+  
+  // Check if user has required role
+  if (DISCORD_GUILD_ID && DISCORD_REQUIRED_ROLE) {
+    const hasRole = await checkUserHasRole(discordUser.id, accessToken);
+    if (!hasRole) {
+      throw new Error(`You must have the "${DISCORD_REQUIRED_ROLE}" role in the Discord server to access this application.`);
+    }
+  }
   
   // Get or create user in database
   let user = getUserByDiscordId(discordUser.id);
