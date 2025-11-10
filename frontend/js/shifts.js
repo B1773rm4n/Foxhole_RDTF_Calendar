@@ -2,12 +2,12 @@
  * Shift management logic
  */
 
-// Ensure API_BASE is available (fallback to production URL if not set)
-// Check if API_BASE is already set globally first
-if (typeof window.API_BASE === 'undefined') {
-    window.API_BASE = 'https://rotdust-calendar.asuka-shikinami.club';
+// Ensure globalThis.API_BASE is available (fallback to production URL if not set)
+// Check if globalThis.API_BASE is already set globally first
+if (typeof globalThis.API_BASE === 'undefined') {
+    globalThis.API_BASE = 'https://rotdust-calendar.asuka-shikinami.club';
 }
-const API_BASE = window.API_BASE;
+const API_BASE = globalThis.API_BASE;
 
 let currentUserId = null;
 
@@ -209,11 +209,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             closeShiftModal();
             
             // Refresh calendar and weekly overview
-            if (window.refreshCalendar) {
-                window.refreshCalendar();
+            if (globalThis.refreshCalendar) {
+                globalThis.refreshCalendar();
             }
-            if (window.refreshOverview) {
-                window.refreshOverview();
+            if (globalThis.refreshOverview) {
+                globalThis.refreshOverview();
             }
         } catch (error) {
             alert('Error saving shift: ' + error.message);
@@ -231,11 +231,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 closeShiftModal();
                 
                 // Refresh calendar and weekly overview
-                if (window.refreshCalendar) {
-                    window.refreshCalendar();
+                if (globalThis.refreshCalendar) {
+                    globalThis.refreshCalendar();
                 }
-                if (window.refreshWeeklyOverview) {
-                    window.refreshWeeklyOverview();
+                if (globalThis.refreshWeeklyOverview) {
+                    globalThis.refreshWeeklyOverview();
                 }
             } catch (error) {
                 alert('Error deleting shift: ' + error.message);
@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     // Close modal on outside click
-    window.addEventListener('click', (e) => {
+    globalThis.addEventListener('click', (e) => {
         const modal = document.getElementById('shift-modal');
         if (e.target === modal) {
             closeShiftModal();
@@ -485,11 +485,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeAvailabilityModal();
                 
                 // Refresh calendar and weekly overview
-                if (window.refreshCalendar) {
-                    window.refreshCalendar();
+                if (globalThis.refreshCalendar) {
+                    globalThis.refreshCalendar();
                 }
-                if (window.refreshWeeklyOverview) {
-                    window.refreshWeeklyOverview();
+                if (globalThis.refreshWeeklyOverview) {
+                    globalThis.refreshWeeklyOverview();
                 }
             } catch (error) {
                 alert('Error creating availability: ' + error.message);
@@ -503,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Close on outside click
-    window.addEventListener('click', (e) => {
+    globalThis.addEventListener('click', (e) => {
         const modal = document.getElementById('availability-modal');
         if (e.target === modal) {
             closeAvailabilityModal();
@@ -512,8 +512,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Make functions globally available
-window.openShiftModal = openShiftModal;
-window.closeShiftModal = closeShiftModal;
-window.openAvailabilityModal = openAvailabilityModal;
-window.closeAvailabilityModal = closeAvailabilityModal;
+globalThis.openShiftModal = openShiftModal;
+globalThis.closeShiftModal = closeShiftModal;
+globalThis.openAvailabilityModal = openAvailabilityModal;
+globalThis.closeAvailabilityModal = closeAvailabilityModal;
 

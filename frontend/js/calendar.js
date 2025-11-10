@@ -2,12 +2,12 @@
  * Calendar rendering and interaction
  */
 
-// Ensure API_BASE is available (fallback to production URL if not set)
-// Check if API_BASE is already set globally first
-if (typeof window.API_BASE === 'undefined') {
-    window.API_BASE = 'https://rotdust-calendar.asuka-shikinami.club';
+// Ensure globalThis.API_BASE is available (fallback to production URL if not set)
+// Check if globalThis.API_BASE is already set globally first
+if (typeof globalThis.API_BASE === 'undefined') {
+    globalThis.API_BASE = 'https://rotdust-calendar.asuka-shikinami.club';
 }
-const API_BASE = window.API_BASE;
+const API_BASE = globalThis.API_BASE;
 
 let currentDate = new Date();
 let shifts = [];
@@ -33,12 +33,12 @@ async function loadCurrentUser() {
             
             return currentUser;
         } else {
-            window.location.href = '/login.html';
+            globalThis.location.href = '/login.html';
             return null;
         }
     } catch (error) {
         console.error('Error loading user:', error);
-        window.location.href = '/login.html';
+        globalThis.location.href = '/login.html';
         return null;
     }
 }
@@ -141,8 +141,8 @@ function renderCalendar() {
         
         // Make day clickable to add availability
         dayCell.addEventListener('click', () => {
-            if (window.openAvailabilityModal) {
-                window.openAvailabilityModal(dateStr);
+            if (globalThis.openAvailabilityModal) {
+                globalThis.openAvailabilityModal(dateStr);
             }
         });
         
@@ -192,8 +192,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (addBtn) {
         addBtn.addEventListener('click', () => {
             // Open availability modal
-            if (window.openAvailabilityModal) {
-                window.openAvailabilityModal();
+            if (globalThis.openAvailabilityModal) {
+                globalThis.openAvailabilityModal();
             }
         });
     }
@@ -202,6 +202,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadShifts();
     
     // Make refreshCalendar globally available
-    window.refreshCalendar = refreshCalendar;
+    globalThis.refreshCalendar = refreshCalendar;
 });
 

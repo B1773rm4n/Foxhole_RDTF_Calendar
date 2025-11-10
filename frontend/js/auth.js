@@ -2,17 +2,16 @@
  * Authentication handling
  */
 
-// Ensure API_BASE is available (fallback to production URL if not set)
-// Check if API_BASE is already set globally first
-if (typeof window.API_BASE === 'undefined') {
-    window.API_BASE = 'https://rotdust-calendar.asuka-shikinami.club';
+// Ensure globalThis.API_BASE is available (fallback to production URL if not set)
+// Check if globalThis.API_BASE is already set globally first
+if (typeof globalThis.API_BASE === 'undefined') {
+    globalThis.API_BASE = 'https://rotdust-calendar.asuka-shikinami.club';
 }
-const API_BASE = window.API_BASE;
 
 // Check if user is authenticated
 async function checkAuth() {
     try {
-        const response = await fetch(`${API_BASE}/api/auth/me`, {
+        const response = await fetch(`${globalThis.API_BASE}/api/auth/me`, {
             credentials: 'include'
         });
         
@@ -30,31 +29,31 @@ async function checkAuth() {
 // Logout
 async function logout() {
     try {
-        await fetch(`${API_BASE}/api/auth/logout`, {
+        await fetch(`${globalThis.API_BASE}/api/auth/logout`, {
             method: 'POST',
             credentials: 'include'
         });
-        window.location.href = '/login.html';
+        globalThis.location.href = '/login.html';
     } catch (error) {
         console.error('Logout error:', error);
-        window.location.href = '/login.html';
+        globalThis.location.href = '/login.html';
     }
 }
 
 // Initialize auth on page load
 document.addEventListener('DOMContentLoaded', async () => {
     // Check for error in URL (from OAuth callback)
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(globalThis.location.search);
     const error = urlParams.get('error');
-    if (error && window.location.pathname === '/login.html') {
+    if (error && globalThis.location.pathname === '/login.html') {
         alert('Login error: ' + decodeURIComponent(error));
     }
     
     // If not on login page, check auth
-    if (window.location.pathname !== '/login.html') {
+    if (globalThis.location.pathname !== '/login.html') {
         const user = await checkAuth();
         if (!user) {
-            window.location.href = '/login.html';
+            globalThis.location.href = '/login.html';
             return;
         }
     }

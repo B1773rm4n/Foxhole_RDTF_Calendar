@@ -273,8 +273,8 @@ function selectTimezone(timezone) {
     closeDropdown();
     
     // Trigger calendar refresh
-    if (window.refreshCalendar) {
-        window.refreshCalendar();
+    if (globalThis.refreshCalendar) {
+        globalThis.refreshCalendar();
     }
 }
 
