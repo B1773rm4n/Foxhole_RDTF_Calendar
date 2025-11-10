@@ -292,16 +292,35 @@ function copyLinkToClipboard() {
     });
 }
 
+// Helper function to open availability modal with retry
+function openAvailabilityModalWithRetry() {
+    if (window.openAvailabilityModal) {
+        window.openAvailabilityModal();
+    } else {
+        // Retry after a short delay in case scripts are still loading
+        setTimeout(() => {
+            if (window.openAvailabilityModal) {
+                window.openAvailabilityModal();
+            } else {
+                console.error('openAvailabilityModal is not available');
+                alert('Availability modal is not ready. Please refresh the page.');
+            }
+        }, 100);
+    }
+}
+
 // Initialize overview
 document.addEventListener('DOMContentLoaded', async () => {
     // Setup buttons
     const addBtn = document.getElementById('add-availability-overview-btn');
     if (addBtn) {
-        addBtn.addEventListener('click', () => {
-            if (window.openAvailabilityModal) {
-                window.openAvailabilityModal();
-            }
+        addBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openAvailabilityModalWithRetry();
         });
+    } else {
+        console.error('add-availability-overview-btn not found');
     }
     
     const copyBtn = document.getElementById('copy-link-btn');
@@ -313,10 +332,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (editLink) {
         editLink.addEventListener('click', (e) => {
             e.preventDefault();
-            if (window.openAvailabilityModal) {
-                window.openAvailabilityModal();
-            }
+            e.stopPropagation();
+            openAvailabilityModalWithRetry();
         });
+    } else {
+        console.error('edit-availability-link not found');
     }
     
     // Load initial data

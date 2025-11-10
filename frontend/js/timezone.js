@@ -114,10 +114,75 @@ function getAllTimezones() {
 }
 
 /**
+ * Get timezone offset string (e.g., "+02:00", "-05:00")
+ */
+function getTimezoneOffset(timezone) {
+    try {
+        // Use a specific UTC time to calculate offset
+        // This avoids issues with DST changes during the day
+        const testDate = new Date('2024-01-15T12:00:00Z'); // Noon UTC on a fixed date
+        
+        // Format in UTC
+        const utcFormatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'UTC',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+        
+        // Format in target timezone
+        const tzFormatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: timezone,
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+        
+        const utcParts = utcFormatter.formatToParts(testDate);
+        const tzParts = tzFormatter.formatToParts(testDate);
+        
+        const utcHour = parseInt(utcParts.find(p => p.type === 'hour')?.value || '0', 10);
+        const utcMinute = parseInt(utcParts.find(p => p.type === 'minute')?.value || '0', 10);
+        const tzHour = parseInt(tzParts.find(p => p.type === 'hour')?.value || '0', 10);
+        const tzMinute = parseInt(tzParts.find(p => p.type === 'minute')?.value || '0', 10);
+        
+        // Calculate the difference in minutes
+        const utcMinutes = utcHour * 60 + utcMinute;
+        const tzMinutes = tzHour * 60 + tzMinute;
+        let diffMinutes = tzMinutes - utcMinutes;
+        
+        // Normalize to -12 to +14 hour range
+        if (diffMinutes > 12 * 60) {
+            diffMinutes -= 24 * 60;
+        } else if (diffMinutes < -12 * 60) {
+            diffMinutes += 24 * 60;
+        }
+        
+        const sign = diffMinutes >= 0 ? '+' : '-';
+        const hours = Math.abs(Math.floor(diffMinutes / 60));
+        const minutes = Math.abs(diffMinutes % 60);
+        
+        return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    } catch (error) {
+        console.error('Error getting timezone offset:', error);
+        return '+00:00';
+    }
+}
+
+/**
  * Format timezone name for display
  */
 function formatTimezoneName(timezone) {
     return timezone.replace(/_/g, ' ');
+}
+
+/**
+ * Format timezone name with offset for display
+ */
+function formatTimezoneNameWithOffset(timezone) {
+    const name = formatTimezoneName(timezone);
+    const offset = getTimezoneOffset(timezone);
+    return `${name} (${offset})`;
 }
 
 /**
@@ -144,7 +209,8 @@ function filterTimezones(query) {
     const lowerQuery = query.toLowerCase();
     return allTimezones.filter(tz => {
         const formatted = formatTimezoneName(tz).toLowerCase();
-        return formatted.includes(lowerQuery) || tz.toLowerCase().includes(lowerQuery);
+        const offset = getTimezoneOffset(tz).toLowerCase();
+        return formatted.includes(lowerQuery) || tz.toLowerCase().includes(lowerQuery) || offset.includes(lowerQuery);
     });
 }
 
@@ -164,7 +230,7 @@ function renderTimezoneList(timezones) {
         if (tz === currentTimezone) {
             item.classList.add('selected');
         }
-        item.textContent = formatTimezoneName(tz);
+        item.textContent = formatTimezoneNameWithOffset(tz);
         item.dataset.timezone = tz;
         
         item.addEventListener('click', () => {
@@ -200,7 +266,7 @@ function selectTimezone(timezone) {
     // Update display
     const displayText = document.getElementById('timezone-display-text');
     if (displayText) {
-        displayText.textContent = formatTimezoneName(timezone);
+        displayText.textContent = formatTimezoneNameWithOffset(timezone);
     }
     
     // Close dropdown
@@ -327,7 +393,7 @@ function initTimezoneSelector() {
     // Update display
     const displayText = document.getElementById('timezone-display-text');
     if (displayText) {
-        displayText.textContent = formatTimezoneName(currentTimezone);
+        displayText.textContent = formatTimezoneNameWithOffset(currentTimezone);
     }
     
     // Setup display click handler
