@@ -162,6 +162,41 @@ body {
     background-color: #5568d3;
 }
 
+/* Calendar Actions */
+.calendar-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.add-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-button:hover {
+    background-color: #218838;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.help-text {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0;
+    font-style: italic;
+}
+
 /* Calendar Grid */
 .calendar-grid {
     display: grid;
@@ -187,12 +222,31 @@ body {
     min-height: 100px;
     padding: 0.5rem;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
     position: relative;
+    border: 2px solid transparent;
 }
 
 .calendar-day:hover {
-    background-color: #f0f0f0;
+    background-color: #e8f4f8;
+    border-color: #667eea;
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+}
+
+.calendar-day::after {
+    content: '+';
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    color: #667eea;
+    font-size: 1.2rem;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.calendar-day:hover::after {
+    opacity: 0.5;
 }
 
 .calendar-day.empty {
