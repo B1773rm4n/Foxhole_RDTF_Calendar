@@ -2,8 +2,6 @@
  * Authentication handling
  */
 
-// Ensure globalThis.API_BASE is available (fallback to production URL if not set)
-// Check if globalThis.API_BASE is already set globally first
 if (typeof globalThis.API_BASE === 'undefined') {
     globalThis.API_BASE = 'https://rotdust-calendar.asuka-shikinami.club';
 }

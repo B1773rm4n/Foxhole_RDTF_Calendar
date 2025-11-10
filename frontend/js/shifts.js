@@ -2,19 +2,16 @@
  * Shift management logic
  */
 
-// Ensure globalThis.API_BASE is available (fallback to production URL if not set)
-// Check if globalThis.API_BASE is already set globally first
 if (typeof globalThis.API_BASE === 'undefined') {
     globalThis.API_BASE = 'https://rotdust-calendar.asuka-shikinami.club';
 }
-const API_BASE = globalThis.API_BASE;
 
 let currentUserId = null;
 
 // Load current user
 async function loadCurrentUser() {
     try {
-        const response = await fetch(`${API_BASE}/api/auth/me`, {
+        const response = await fetch(`${globalThis.API_BASE}/api/auth/me`, {
             credentials: 'include'
         });
         
@@ -40,7 +37,7 @@ async function getShifts(startDate, endDate) {
             timezone: timezone
         });
         
-        const response = await fetch(`${API_BASE}/api/shifts?${params}`, {
+        const response = await fetch(`${globalThis.API_BASE}/api/shifts?${params}`, {
             credentials: 'include'
         });
         
@@ -58,7 +55,7 @@ async function getShifts(startDate, endDate) {
 async function createShift(shiftData) {
     try {
         const timezone = getCurrentTimezone();
-        const response = await fetch(`${API_BASE}/api/shifts`, {
+        const response = await fetch(`${globalThis.API_BASE}/api/shifts`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -86,7 +83,7 @@ async function createShift(shiftData) {
 async function updateShift(shiftId, shiftData) {
     try {
         const timezone = getCurrentTimezone();
-        const response = await fetch(`${API_BASE}/api/shifts/${shiftId}`, {
+        const response = await fetch(`${globalThis.API_BASE}/api/shifts/${shiftId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -113,7 +110,7 @@ async function updateShift(shiftId, shiftData) {
 // Delete shift
 async function deleteShift(shiftId) {
     try {
-        const response = await fetch(`${API_BASE}/api/shifts/${shiftId}`, {
+        const response = await fetch(`${globalThis.API_BASE}/api/shifts/${shiftId}`, {
             method: 'DELETE',
             credentials: 'include'
         });

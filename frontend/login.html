@@ -16,7 +16,6 @@
     </div>
     <script src="/js/auth.js"></script>
     <script>
-        // API_BASE is already declared in auth.js, so we can use it directly
         async function handleDiscordLogin() {
             const btn = document.getElementById('discord-login-btn');
             const originalText = btn.textContent;
@@ -26,9 +25,7 @@
                 btn.disabled = true;
                 btn.textContent = 'Loading...';
                 
-                // Use API_BASE from auth.js, or fallback if not available
-                const apiBase = typeof API_BASE !== 'undefined' ? API_BASE : (window.API_BASE || 'https://rotdust-calendar.asuka-shikinami.club');
-                const response = await fetch(`${apiBase}/api/auth/discord`);
+                const response = await fetch(`${globalThis.API_BASE}/api/auth/discord`);
                 
                 if (response.status === 429) {
                     // Handle rate limit error
