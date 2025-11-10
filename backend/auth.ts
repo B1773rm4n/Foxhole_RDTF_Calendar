@@ -23,6 +23,93 @@ const DISCORD_BOT_TOKEN = Deno.env.get("DISCORD_BOT_TOKEN") || ""; // Optional: 
 // Allowed roles for login (users need at least one of these)
 const ALLOWED_ROLES = ["Member", "Admin"];
 
+// Cache for Discord roles list (roles rarely change)
+interface RolesCache {
+  roles: Array<{ id: string; name: string }>;
+  expiresAt: number;
+}
+
+let rolesCache: RolesCache | null = null;
+const ROLES_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Get guild roles with caching
+ */
+async function getGuildRoles(useBotToken: boolean, accessToken?: string): Promise<Array<{ id: string; name: string }>> {
+  // Return cached roles if still valid
+  if (rolesCache && rolesCache.expiresAt > Date.now()) {
+    return rolesCache.roles;
+  }
+
+  const headers: Record<string, string> = useBotToken && DISCORD_BOT_TOKEN
+    ? { Authorization: `Bot ${DISCORD_BOT_TOKEN}` }
+    : accessToken
+    ? { Authorization: `Bearer ${accessToken}` }
+    : {};
+
+  if (!headers.Authorization) {
+    throw new Error("No authentication method available");
+  }
+
+  const response = await fetch(`https://discord.com/api/guilds/${DISCORD_GUILD_ID}/roles`, {
+    headers,
+  });
+
+  if (!response.ok) {
+    // Check for rate limit
+    if (response.status === 429) {
+      const retryAfter = parseInt(response.headers.get("Retry-After") || "60");
+      throw new Error(`Discord rate limit exceeded. Please try again in ${retryAfter} seconds.`);
+    }
+    throw new Error(`Failed to get guild roles: ${response.status} ${response.statusText}`);
+  }
+
+  const roles = await response.json() as Array<{ id: string; name: string }>;
+  
+  // Cache the roles
+  rolesCache = {
+    roles,
+    expiresAt: Date.now() + ROLES_CACHE_TTL,
+  };
+
+  return roles;
+}
+
+/**
+ * Get guild member info
+ */
+async function getGuildMember(userId: string, useBotToken: boolean, accessToken?: string): Promise<{ roles: string[] } | null> {
+  const headers: Record<string, string> = useBotToken && DISCORD_BOT_TOKEN
+    ? { Authorization: `Bot ${DISCORD_BOT_TOKEN}` }
+    : accessToken
+    ? { Authorization: `Bearer ${accessToken}` }
+    : {};
+
+  if (!headers.Authorization) {
+    throw new Error("No authentication method available");
+  }
+
+  const url = useBotToken && DISCORD_BOT_TOKEN
+    ? `https://discord.com/api/guilds/${DISCORD_GUILD_ID}/members/${userId}`
+    : `https://discord.com/api/users/@me/guilds/${DISCORD_GUILD_ID}/member`;
+
+  const response = await fetch(url, { headers });
+
+  if (!response.ok) {
+    // Check for rate limit
+    if (response.status === 429) {
+      const retryAfter = parseInt(response.headers.get("Retry-After") || "60");
+      throw new Error(`Discord rate limit exceeded. Please try again in ${retryAfter} seconds.`);
+    }
+    if (response.status === 404) {
+      return null; // User not in guild
+    }
+    throw new Error(`Failed to get guild member: ${response.status} ${response.statusText}`);
+  }
+
+  return await response.json() as { roles: string[] };
+}
+
 /**
  * Generate a random session token
  */
@@ -102,6 +189,11 @@ async function exchangeCodeForToken(code: string): Promise<string> {
   });
   
   if (!response.ok) {
+    // Check for rate limit
+    if (response.status === 429) {
+      const retryAfter = parseInt(response.headers.get("Retry-After") || "60");
+      throw new Error(`Discord rate limit exceeded. Please try again in ${retryAfter} seconds.`);
+    }
     const error = await response.text();
     throw new Error(`Failed to exchange code for token: ${error}`);
   }
@@ -121,6 +213,11 @@ async function getDiscordUserInfo(accessToken: string): Promise<{ id: string; us
   });
   
   if (!response.ok) {
+    // Check for rate limit
+    if (response.status === 429) {
+      const retryAfter = parseInt(response.headers.get("Retry-After") || "60");
+      throw new Error(`Discord rate limit exceeded. Please try again in ${retryAfter} seconds.`);
+    }
     const error = await response.text();
     throw new Error(`Failed to get user info: ${error}`);
   }
@@ -144,22 +241,38 @@ async function checkUserInGuild(accessToken: string, userId?: string): Promise<b
 
   // Try bot method first (more reliable) if we have userId
   if (DISCORD_BOT_TOKEN && userId) {
-    return await botCheckUserInGuild(userId);
+    try {
+      return await botCheckUserInGuild(userId);
+    } catch (error) {
+      // If bot check fails, fall back to OAuth method
+      console.warn("Bot check failed, falling back to OAuth method:", error);
+    }
   }
 
-  // Fallback to OAuth method
-  const response = await fetch("https://discord.com/api/users/@me/guilds", {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-  
-  if (!response.ok) {
-    return false;
+  // Fallback to OAuth method - but we can optimize by checking member directly
+  // instead of fetching all guilds
+  try {
+    const member = await getGuildMember(userId || "", false, accessToken);
+    return member !== null;
+  } catch (_error) {
+    // If that fails, try the guilds list method
+    const response = await fetch("https://discord.com/api/users/@me/guilds", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    
+    if (!response.ok) {
+      if (response.status === 429) {
+        const retryAfter = parseInt(response.headers.get("Retry-After") || "60");
+        throw new Error(`Discord rate limit exceeded. Please try again in ${retryAfter} seconds.`);
+      }
+      return false;
+    }
+    
+    const guilds = await response.json() as Array<{ id: string }>;
+    return guilds.some(guild => guild.id === DISCORD_GUILD_ID);
   }
-  
-  const guilds = await response.json() as Array<{ id: string }>;
-  return guilds.some(guild => guild.id === DISCORD_GUILD_ID);
 }
 
 /**
