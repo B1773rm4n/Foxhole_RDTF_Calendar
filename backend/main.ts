@@ -1,5 +1,5 @@
 import { initDatabase } from "./database.ts";
-import { getSessionTokenFromRequest, getUserIdFromSession, deleteSession } from "./auth.ts";
+import { getSessionTokenFromRequest, getUserIdFromSession, deleteSession, initSessionCleanup } from "./auth.ts";
 import { getDiscordAuthUrl, handleDiscordCallback } from "./discord/oauth.ts";
 import { handleShiftsRequest, handleShiftRequest } from "./api/shifts.ts";
 import { handleUsersRequest } from "./api/users.ts";
@@ -9,6 +9,9 @@ import { getSecurityHeaders, checkRateLimit, getClientIP } from "./utils/securit
 
 // Initialize database
 initDatabase();
+
+// Initialize scheduled session cleanup
+initSessionCleanup();
 
 const PORT = parseInt(Deno.env.get("PORT") || "9624");
 

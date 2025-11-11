@@ -21,13 +21,24 @@ export function createSession(userId: number): string {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 3); // 3 days from now
   
-  // Clean up expired sessions periodically
-  deleteExpiredSessions();
-  
   // Create session in database
   dbCreateSession(userId, token, expiresAt);
   
   return token;
+}
+
+/**
+ * Initialize scheduled session cleanup
+ * Call this once at application startup
+ */
+export function initSessionCleanup(): void {
+  // Clean up expired sessions every hour
+  setInterval(() => {
+    deleteExpiredSessions();
+  }, 60 * 60 * 1000);
+  
+  // Run initial cleanup
+  deleteExpiredSessions();
 }
 
 /**

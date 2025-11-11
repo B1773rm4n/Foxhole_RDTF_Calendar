@@ -56,12 +56,11 @@ Create a `.env` file or set the following environment variables:
 ```bash
 DISCORD_CLIENT_ID=your_discord_client_id
 DISCORD_CLIENT_SECRET=your_discord_client_secret
-DISCORD_REDIRECT_URI=http://localhost:8000/api/auth/callback
+DISCORD_REDIRECT_URI=http://localhost:9624/api/auth/callback
 DISCORD_GUILD_ID=1436299636963938355  # Optional: Restrict to specific Discord server
 DISCORD_REQUIRED_ROLE=Member  # Optional: Require specific role (requires DISCORD_GUILD_ID)
 DISCORD_BOT_TOKEN=your_bot_token  # Optional: Bot token for role checking (recommended)
-SESSION_SECRET=your_random_secret_key
-PORT=8000  # Optional, defaults to 8000
+PORT=9624  # Optional, defaults to 9624
 ```
 
 Discord OAuth Setup
@@ -69,7 +68,7 @@ Discord OAuth Setup
 1. Go to https://discord.com/developers/applications
 2. Create a new application
 3. Go to OAuth2 section
-4. Add redirect URI: `http://localhost:8000/api/auth/callback`
+4. Add redirect URI: `http://localhost:9624/api/auth/callback`
 5. Copy Client ID and Client Secret to environment variables
 
 Discord Bot Setup (for Role Checking)
@@ -90,7 +89,7 @@ Running the Application
 ```bash
 deno task dev
 ```
-This starts the backend server which also serves the frontend files. The application will be available at `http://localhost:8000`
+This starts the backend server which also serves the frontend files. The application will be available at `http://localhost:9624`
 
 **Frontend Only (Development):**
 For frontend-only development with a lightweight static file server:
@@ -103,7 +102,7 @@ This starts a simple file server on `http://localhost:3000` serving only the fro
 ```bash
 deno task start
 ```
-Starts the production server at `http://localhost:8000`
+Starts the production server at `http://localhost:9624`
 
 **Discord Bot (Testing):**
 ```bash
